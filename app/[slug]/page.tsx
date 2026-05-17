@@ -165,12 +165,12 @@ export default async function AgentPage(props: any) {
             </div>
             {biens.map((bien: any) => (
               <div className="bien" key={bien.id}>
-                <div className="bien-ph">
-                  <span className={`bien-status ${bien.statut === 'sous_offre' ? 's-offre' : 's-vente'}`}>
-                    {bien.statut === 'sous_offre' ? 'Sous offre' : 'Vente'}
-                  </span>
-                  🏠
-                </div>
+                <div className="bien-ph" style={{backgroundImage: bien.photos?.[0] ? `url(${bien.photos[0]})` : 'none', backgroundSize:'cover', backgroundPosition:'center'}}>
+  {!bien.photos?.[0] && '🏠'}
+  <span className={`bien-status ${bien.statut === 'sous_offre' ? 's-offre' : 's-vente'}`}>
+    {bien.statut === 'sous_offre' ? 'Sous offre' : 'Vente'}
+  </span>
+</div>
                 <div className="bien-body">
                   <div className="bien-loc">{bien.ville}{bien.quartier ? ` · ${bien.quartier}` : ''}</div>
                   <div className="bien-title">{bien.titre}</div>
