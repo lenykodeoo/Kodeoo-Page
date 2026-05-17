@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
-    const { url } = await req.json()
+    const body = await req.json()
+    const url = body.url
+    const mode = body.mode
+
     if (!url) return NextResponse.json({ error: 'URL manquante' }, { status: 400 })
 
     const response = await fetch(url, {
@@ -16,17 +19,35 @@ export async function POST(req: NextRequest) {
     if (!response.ok) return NextResponse.json({ error: 'Page inaccessible' }, { status: 400 })
 
     const html = await response.text()
+    const baseUrl = new URL(url).origin
+
+    if (mode === 'list') {
+      const liens = new Set<string>()
+      const allLinks = [...html.matchAll(/href="([^"#?][^"]*)"/gi)]
+      for (const m of allLinks) {
+        let lien = m[1]
+        if (!lien) continue
+        if (lien.startsWith('/')) lien = baseUrl + lien
+        if (!lien.startsWith('http')) continue
+        if (lien === url) continue
+        if (lien.length < 30) continue
+        if (/\.(css|js|png|jpg|svg|ico|pdf|woff)$/i.test(lien)) continue
+        if (/contact|blog|actualit|equipe|team|about|mentions|politique|cookie|login|account/i.test(lien)) continue
+        if (lien.includes(baseUrl)) liens.add(lien)
+      }
+      const liensArray = [...liens].slice(0, 50)
+      return NextResponse.json({ success: true, mode: 'list', count: liensArray.length, liens: liensArray })
+    }
 
     const getMeta = (prop: string): string => {
-      const m = html.match(new RegExp(`<meta[^>]*property=["\']${prop}["\'][^>]*content=["\']([^"\']*)["\']`, 'i'))
-        || html.match(new RegExp(`<meta[^>]*content=["\']([^"\']*)["\'][^>]*property=["\']${prop}["\']`, 'i'))
+      const m = html.match(new RegExp('<meta[^>]*property="' + prop + '"[^>]*content="([^"]*)"', 'i'))
+        || html.match(new RegExp('<meta[^>]*content="([^"]*)"[^>]*property="' + prop + '"', 'i'))
       return m ? m[1].trim() : ''
     }
 
-    const ogTitle = getMeta('og:title').replace(/\s*[-|·|–]\s*(SeLoger|Leboncoin|PAP|Logic|BienIci).*/i, '').trim()
+    const ogTitle = getMeta('og:title').replace(/\s*[-|]\s*(SeLoger|Leboncoin|PAP|Logic|BienIci).*/i, '').trim()
     const ogDesc = getMeta('og:description')
     const ogImage = getMeta('og:image')
-
     const fullText = ogTitle + ' ' + ogDesc + ' ' + html.slice(0, 30000)
 
     let prix: number | null = null
@@ -39,7 +60,7 @@ export async function POST(req: NextRequest) {
     const surfaceMatch = fullText.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
     const surface = surfaceMatch ? parseFloat(surfaceMatch[1].replace(',', '.')) : null
 
-    const piecesMatch = fullText.match(/(\d+)\s*pièces?/i) || fullText.match(/T(\d)\b/) || fullText.match(/F(\d)\b/)
+    const piecesMatch = fullText.match(/(\d+)\s*pieces?/i) || fullText.match(/T(\d)\b/) || fullText.match(/F(\d)\b/)
     const pieces = piecesMatch ? parseInt(piecesMatch[1]) : null
 
     const chambresMatch = fullText.match(/(\d+)\s*chambre/i)
@@ -69,23 +90,9 @@ export async function POST(req: NextRequest) {
       if (p.test(ogTitle + ogDesc)) { type = l; break }
     }
 
-    const photos = ogImage ? [ogImage] : []
-
     return NextResponse.json({
       success: true,
-      bien: {
-        titre: ogTitle || type,
-        type,
-        prix,
-        surface,
-        pieces,
-        chambres,
-        ville,
-        description: ogDesc || null,
-        photos,
-        dpe,
-        source_url: url,
-      }
+      bien: { titre: ogTitle || type, type, prix, surface, pieces, chambres, ville, description: ogDesc || null, photos: ogImage ? [ogImage] : [], dpe, source_url: url }
     })
 
   } catch (error: any) {
