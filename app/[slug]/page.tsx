@@ -223,12 +223,17 @@ export default async function AgentPage(props: any) {
             )}
           </div>
 
-          {(agent.biens_vendus > 0 || agent.experience) && (
-            <div className="proofs">
-              {agent.biens_vendus > 0 && <span className="proof">+{agent.biens_vendus} ventes</span>}
-              {agent.experience && <span className="proof">{agent.experience} ans d'expérience</span>}
-            </div>
-          )}
+          {agent.bio && (
+              <div style={{fontSize:14,color:'#6B6B80',lineHeight:1.65,textAlign:'center',marginBottom:16,padding:'0 4px'}}>
+                {agent.bio}
+              </div>
+            )}
+            {(agent.biens_vendus > 0 || agent.experience) && (
+              <div className="proofs">
+                {agent.biens_vendus > 0 && <span className="proof">+{agent.biens_vendus} ventes</span>}
+                {agent.experience && <span className="proof">{agent.experience} ans d'expérience</span>}
+              </div>
+            )}
 
           <button className="cta-main" id="heroEstimBtn">
             Faire estimer mon bien
@@ -311,7 +316,7 @@ export default async function AgentPage(props: any) {
         </div>
 
        {/* AVIS */}
-        {avisData && avisData.length > 0 && (
+        {(avisData && avisData.length > 0 || agent.google_rating) && (
           <div className="avis-wrap">
             <div style={{padding:'0 16px',marginBottom:6}}>
               <div className="sec-label">Avis clients</div>
