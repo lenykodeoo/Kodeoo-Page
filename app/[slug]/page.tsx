@@ -40,6 +40,13 @@ export default async function AgentPage(props: any) {
     .eq('agent_id', agent.id)
     .eq('actif', true)
 
+  const { data: avisData } = await supabaseAdmin
+    .from('avis')
+    .select('*')
+    .eq('agent_id', agent.id)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
   const isAgence = agent.type === 'agence'
   const displayName = isAgence ? agent.nom : `${agent.prenom} ${agent.nom}`
   const initials = isAgence ? agent.nom?.[0] : `${agent.prenom?.[0] || ''}${agent.nom?.[0] || ''}`
@@ -304,38 +311,38 @@ export default async function AgentPage(props: any) {
           <button className="estim-btn" id="estimBtn">Recevoir mon estimation gratuite</button>
         </div>
 
-        {/* AVIS */}
-        <div className="avis-wrap">
-          <div style={{padding:'0 16px',marginBottom:6}}>
-            <div className="sec-label">Avis clients</div>
-          </div>
-          <div className="avis-global">
-            <div className="avis-note">{agent.google_rating || '5,0'}</div>
-            <div>
-              <div className="stars" style={{fontSize:15}}>★★★★★</div>
-              <div className="avis-note-sub">Avis Google</div>
+       {/* AVIS */}
+        {avisData && avisData.length > 0 && (
+          <div className="avis-wrap">
+            <div style={{padding:'0 16px',marginBottom:6}}>
+              <div className="sec-label">Avis clients</div>
             </div>
-          </div>
-          <div className="avis-scroll">
-            {[
-              {i:'MR',n:'Marie R.',d:'Mars 2026',t:'Excellent accompagnement du début à la fin. Vente conclue en 3 semaines au prix demandé.'},
-              {i:'TC',n:'Thomas C.',d:'Fév. 2026',t:'Expertise remarquable du marché local. Première acquisition réussie grâce à ses conseils.'},
-              {i:'SL',n:'Sophie L.',d:'Jan. 2026',t:'Très professionnel, réactif et humain. Je recommande vivement sans hésitation.'},
-            ].map((a, i) => (
-              <div key={i} className="avis-card">
-                <div className="avis-stars">★★★★★</div>
-                <div className="avis-text">&quot;{a.t}&quot;</div>
-                <div className="avis-meta">
-                  <div className="avis-av">{a.i}</div>
-                  <div>
-                    <div className="avis-name">{a.n}</div>
-                    <div className="avis-date">{a.d}</div>
-                  </div>
+            {agent.google_rating && (
+              <div className="avis-global">
+                <div className="avis-note">{agent.google_rating}</div>
+                <div>
+                  <div className="stars" style={{fontSize:15}}>★★★★★</div>
+                  <div className="avis-note-sub">Avis Google</div>
                 </div>
               </div>
-            ))}
+            )}
+            <div className="avis-scroll">
+              {avisData.map((a: any) => (
+                <div key={a.id} className="avis-card">
+                  <div className="avis-stars">{'★'.repeat(a.note || 5)}</div>
+                  <div className="avis-text">&quot;{a.texte}&quot;</div>
+                  <div className="avis-meta">
+                    <div className="avis-av">{a.auteur.split(' ').map((w: string) => w[0]).join('').slice(0,2).toUpperCase()}</div>
+                    <div>
+                      <div className="avis-name">{a.auteur}</div>
+                      {a.date_avis && <div className="avis-date">{a.date_avis}</div>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* BIENS */}
         {biens && biens.length > 0 && (
