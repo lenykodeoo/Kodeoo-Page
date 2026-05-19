@@ -214,14 +214,14 @@ export default async function AgentPage(props: any) {
               {agent.biens_vendus > 0 && <span className="proof">✅ +{agent.biens_vendus} {isAgence ? 'biens vendus' : 'ventes réalisées'}</span>}
             </div>
 
-            <button className="cta-main" onClick={() => { const el = document.getElementById('m-estimation'); if(el) el.classList.add('open'); document.body.style.overflow='hidden' }}>
-              📊 Faire estimer mon bien
-            </button>
+            <button className="cta-main" id="heroEstimBtn">
+  📊 Faire estimer mon bien
+</button>
 
             <div className="cta-secondary">
-              <button className="cta-sec cta-sec-msg" onClick={() => { const el = document.getElementById('m-contact'); if(el) el.classList.add('open'); document.body.style.overflow='hidden' }}>
-                📲 Message
-              </button>
+              <button className="cta-sec cta-sec-msg" id="heroMsgBtn">
+  📲 Message
+</button>
               <a className="cta-sec cta-sec-tel" href={`tel:${agent.telephone}`}>
                 📞 Appeler
               </a>
@@ -607,6 +607,8 @@ export default async function AgentPage(props: any) {
           document.getElementById('submitEstim')?.addEventListener('click', function() { submitLead('estimation'); });
           document.getElementById('lmBtn')?.addEventListener('click', function() { submitLead('lead_magnet'); });
           document.getElementById('estimBtn')?.addEventListener('click', function() { submitLead('estimation'); });
+          document.getElementById('heroEstimBtn')?.addEventListener('click', function() { openM('estimation'); });
+document.getElementById('heroMsgBtn')?.addEventListener('click', function() { openM('contact'); });
         })();
       `}} />
     </>
