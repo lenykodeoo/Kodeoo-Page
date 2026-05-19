@@ -542,6 +542,9 @@ const loadAvis = async (id: string) => {
                       <input className="inp" type="email" value={profil.email} onChange={e => setProfil(p => ({ ...p, email: e.target.value }))} placeholder="vous@exemple.fr" />
                     </div>
                   </div>
+                  <button className="btn-black" onClick={saveProfil} disabled={savingProfil}>
+                    {savingProfil ? 'Sauvegarde...' : '✓ Enregistrer'}
+                  </button>
                 </div>
 
                 {/* Photo de profil */}
@@ -692,7 +695,7 @@ const loadAvis = async (id: string) => {
                 </div>
                 {/* Zone danger */}
                 <div className="card" style={{borderColor:'#FECACA'}}>
-                  <div className="card-title" style={{color:'#EF4444',marginBottom:4}}>Zone de danger</div>
+                  <div className="card-title" style={{color:'#EF4444',marginBottom:4}}>Supprimer ma page</div>
                   <div className="card-sub" style={{marginBottom:16}}>La suppression de votre page est irréversible. Tous vos biens, leads et ressources seront supprimés.</div>
                   <button onClick={deletePage} style={{height:40,padding:'0 16px',background:'#FEF2F2',color:'#EF4444',border:'1.5px solid #FECACA',borderRadius:8,fontFamily:'inherit',fontSize:13,fontWeight:600,cursor:'pointer'}}>
                     Supprimer ma page
