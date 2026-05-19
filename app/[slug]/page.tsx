@@ -67,15 +67,15 @@ export default async function AgentPage(props: any) {
         .stars{color:#FF9500;font-size:13px;letter-spacing:1px}
         .h-rating-count{color:#8E8E93}
         .proofs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:22px}
-        .proof{padding:5px 12px;background:#F5F5F0;border-radius:6px;font-size:12px;color:#3C3C43;font-weight:500}
+        .proof{padding:5px 12px;background:#EFEFEF;border-radius:6px;font-size:12px;color:#3C3C43;font-weight:500}
         .cta-main{width:100%;height:52px;background:#fff;border:1.5px solid #1C1C1E;border-radius:8px;font-size:15px;font-weight:600;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-family:inherit;transition:background 0.15s}
         .cta-main:hover{background:#F5F5F0}
         .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-        .cta-sec{height:46px;background:#F5F5F0;border:1px solid #E0E0DB;border-radius:8px;font-size:14px;font-weight:500;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:inherit;transition:background 0.15s}
+        .cta-sec{height:46px;background:#fff;border:1px solid #E0E0DB;border-radius:8px;font-size:14px;font-weight:500;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:inherit;transition:background 0.15s}
         .cta-sec:hover{background:#EBEBEB}
 
         .socials-bar{background:#fff;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:center;gap:10px}
-        .soc{width:44px;height:44px;background:#F5F5F0;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px;transition:background 0.15s}
+.soc{width:44px;height:44px;background:#EFEFEF;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px;transition:background 0.15s}
         .soc:hover{background:#EBEBEB}
 
         .section-wrap{background:#fff;margin-bottom:8px;padding:20px 16px}
