@@ -8,7 +8,7 @@ const LEAD_MAGNETS = [
 ]
 
 export default function Dashboard() {
-  const [tab, setTab] = useState<'biens' | 'ressources' | 'leads'>('biens')
+  const [tab, setTab] = useState<'biens' | 'ressources' | 'leads' | 'profil'>('biens')
   const [url, setUrl] = useState('')
   const [listUrl, setListUrl] = useState('')
   const [loading, setLoading] = useState(false)
@@ -22,7 +22,18 @@ export default function Dashboard() {
   const [ressources, setRessources] = useState<any[]>([])
   const [uploadingId, setUploadingId] = useState<string | null>(null)
   const [leads, setLeads] = useState<any[]>([])
+  const [avis, setAvis] = useState<any[]>([])
   const [mobileNav, setMobileNav] = useState(false)
+  const [agent, setAgent] = useState<any>(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [savingProfil, setSavingProfil] = useState(false)
+  const [newAvis, setNewAvis] = useState({ auteur: '', texte: '', note: 5, date_avis: '' })
+  const [profil, setProfil] = useState({
+    biens_vendus: '',
+    experience: '',
+    google_rating: '',
+    bio: '',
+  })
 
   useEffect(() => {
     const getCookie = (name: string) => {
@@ -37,6 +48,8 @@ export default function Dashboard() {
     loadBiens(id)
     loadRessources(id)
     loadLeads(id)
+    loadAvis(id)
+    loadAgent(id)
   }, [])
 
   const loadBiens = async (id: string) => {
@@ -53,6 +66,73 @@ export default function Dashboard() {
     const res = await fetch(`/api/leads?agent_id=${id}`)
     const data = await res.json()
     if (data.success) setLeads(data.leads)
+  }
+const loadAvis = async (id: string) => {
+    const res = await fetch(`/api/avis?agent_id=${id}`)
+    const data = await res.json()
+    if (data.success) setAvis(data.avis)
+  }
+
+  const loadAgent = async (id: string) => {
+    const res = await fetch(`/api/biens?agent_id=${id}`)
+    // On récupère l'agent via Supabase directement
+    const response = await fetch(`/api/agent-profil?agent_id=${id}`)
+    const data = await response.json()
+    if (data.success) {
+      setAgent(data.agent)
+      setProfil({
+        biens_vendus: data.agent.biens_vendus || '',
+        experience: data.agent.experience || '',
+        google_rating: data.agent.google_rating || '',
+        bio: data.agent.bio || '',
+      })
+    }
+  }
+
+  const uploadPhoto = async (file: File) => {
+    if (!agentId) return
+    setUploadingPhoto(true)
+    const fd = new FormData()
+    fd.append('agent_id', agentId)
+    fd.append('file', file)
+    const res = await fetch('/api/upload-photo', { method: 'POST', body: fd })
+    const data = await res.json()
+    if (data.success) loadAgent(agentId)
+    setUploadingPhoto(false)
+  }
+
+  const saveProfil = async () => {
+    if (!agentId) return
+    setSavingProfil(true)
+    await fetch('/api/agent-profil', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: agentId, ...profil })
+    })
+    await loadAgent(agentId)
+    setSavingProfil(false)
+    alert('✅ Profil mis à jour')
+  }
+
+  const addAvis = async () => {
+    if (!agentId || !newAvis.auteur || !newAvis.texte) return
+    await fetch('/api/avis', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: agentId, ...newAvis })
+    })
+    setNewAvis({ auteur: '', texte: '', note: 5, date_avis: '' })
+    loadAvis(agentId)
+  }
+
+  const deleteAvis = async (avis_id: string) => {
+    if (!agentId) return
+    await fetch('/api/avis', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ avis_id, agent_id: agentId })
+    })
+    loadAvis(agentId)
   }
   const getRessource = (lm_id: string) => ressources.find(r => r.lead_magnet_id === lm_id)
 
@@ -149,6 +229,7 @@ export default function Dashboard() {
     { id: 'biens', label: 'Mes biens', count: biens.length, icon: '🏠' },
     { id: 'ressources', label: 'Ressources', count: null, icon: '📄' },
     { id: 'leads', label: 'Leads', count: leads.length, icon: '👤' },
+    { id: 'profil', label: 'Mon profil', count: null, icon: '⚙️' },
   ]
 
   return (
@@ -350,11 +431,13 @@ export default function Dashboard() {
                 {tab === 'biens' && 'Mes biens'}
                 {tab === 'ressources' && 'Ressources'}
                 {tab === 'leads' && 'Leads'}
+{tab === 'profil' && 'Mon profil'}
               </div>
               <div className="page-subtitle">
                 {tab === 'biens' && `${biens.length} bien${biens.length !== 1 ? 's' : ''} sur votre page`}
                 {tab === 'ressources' && 'Gérez vos guides et ressources téléchargeables'}
                 {tab === 'leads' && `${leads.length} prospect${leads.length !== 1 ? 's' : ''} capté${leads.length !== 1 ? 's' : ''}`}
+{tab === 'profil' && 'Personnalisez votre Kodeoo Link'}
               </div>
             </div>
           </div>
@@ -379,6 +462,134 @@ export default function Dashboard() {
               </div>
             )}
 
+{/* ── PROFIL ── */}
+            {tab === 'profil' && (
+              <>
+                {/* Photo de profil */}
+                <div className="card two-col" style={{alignItems:'start'}}>
+                  <div>
+                    <div className="card-title">Photo de profil</div>
+                    <div className="card-sub" style={{marginBottom:16}}>Apparaît en haut de votre Kodeoo Link</div>
+                    <div style={{display:'flex',alignItems:'center',gap:16}}>
+                      <div style={{width:72,height:72,borderRadius:'50%',background:'#EBEBEB',overflow:'hidden',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,fontWeight:700,color:'#6B6B80',flexShrink:0}}>
+                        {agent?.photo_url
+                          ? <img src={agent.photo_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                          : <span>{agentSlug?.[0]?.toUpperCase() || '?'}</span>
+                        }
+                      </div>
+                      <div>
+                        <label style={{display:'inline-flex',alignItems:'center',gap:6,height:36,padding:'0 14px',background:'#1C1C1E',color:'#fff',borderRadius:7,fontSize:12,fontWeight:500,cursor:'pointer'}}>
+                          {uploadingPhoto ? '⏳ Upload...' : '📷 Changer la photo'}
+                          <input type="file" accept="image/*" style={{display:'none'}} onChange={e => { const f = e.target.files?.[0]; if(f) uploadPhoto(f) }} disabled={uploadingPhoto} />
+                        </label>
+                        <div style={{fontSize:11,color:'#C7C7CC',marginTop:6}}>JPG, PNG — max 2MB</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="card-title">Bio</div>
+                    <div className="card-sub" style={{marginBottom:12}}>Présentez-vous en quelques mots</div>
+                    <textarea
+                      style={{width:'100%',minHeight:80,background:'#F9F9F9',border:'1px solid #E8E8E8',borderRadius:8,padding:'10px 12px',fontFamily:'inherit',fontSize:13,color:'#1C1C1E',outline:'none',resize:'vertical',lineHeight:1.6}}
+                      placeholder="Spécialiste du marché depuis X ans, j'accompagne..."
+                      value={profil.bio}
+                      onChange={e => setProfil(p => ({ ...p, bio: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                {/* Preuves sociales */}
+                <div className="card">
+                  <div className="card-title" style={{marginBottom:4}}>Preuves sociales</div>
+                  <div className="card-sub" style={{marginBottom:16}}>Apparaissent sous votre nom sur votre page</div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
+                    <div>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:6}}>Note Google (/5)</label>
+                      <input className="inp" type="number" step="0.1" min="0" max="5" placeholder="ex. 4.9" value={profil.google_rating} onChange={e => setProfil(p => ({ ...p, google_rating: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:6}}>Biens vendus</label>
+                      <input className="inp" type="number" placeholder="ex. 47" value={profil.biens_vendus} onChange={e => setProfil(p => ({ ...p, biens_vendus: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:6}}>Années d'expérience</label>
+                      <input className="inp" type="number" placeholder="ex. 8" value={profil.experience} onChange={e => setProfil(p => ({ ...p, experience: e.target.value }))} />
+                    </div>
+                  </div>
+                  <button className="btn-black" onClick={saveProfil} disabled={savingProfil}>
+                    {savingProfil ? 'Sauvegarde...' : '✓ Enregistrer'}
+                  </button>
+                </div>
+
+                {/* Avis clients */}
+                <div className="card">
+                  <div className="card-title" style={{marginBottom:4}}>Avis clients</div>
+                  <div className="card-sub" style={{marginBottom:16}}>Ajoutez vos meilleurs avis — ils s'affichent sur votre page</div>
+
+                  {/* Formulaire ajout avis */}
+                  <div style={{background:'#F9F9F9',border:'1px solid #E8E8E8',borderRadius:10,padding:16,marginBottom:16}}>
+                    <div style={{fontSize:13,fontWeight:600,color:'#1C1C1E',marginBottom:12}}>Ajouter un avis</div>
+                    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}>
+                      <div>
+                        <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Prénom &amp; Nom</label>
+                        <input className="inp" placeholder="Marie R." value={newAvis.auteur} onChange={e => setNewAvis(a => ({ ...a, auteur: e.target.value }))} />
+                      </div>
+                      <div>
+                        <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Date</label>
+                        <input className="inp" placeholder="Mars 2026" value={newAvis.date_avis} onChange={e => setNewAvis(a => ({ ...a, date_avis: e.target.value }))} />
+                      </div>
+                    </div>
+                    <div style={{marginBottom:10}}>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Texte de l'avis</label>
+                      <textarea
+                        style={{width:'100%',minHeight:70,background:'#fff',border:'1px solid #E8E8E8',borderRadius:8,padding:'8px 12px',fontFamily:'inherit',fontSize:13,color:'#1C1C1E',outline:'none',resize:'vertical',lineHeight:1.5}}
+                        placeholder="Excellent accompagnement, je recommande vivement..."
+                        value={newAvis.texte}
+                        onChange={e => setNewAvis(a => ({ ...a, texte: e.target.value }))}
+                      />
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+                      <div style={{display:'flex',alignItems:'center',gap:8}}>
+                        <label style={{fontSize:12,color:'#8E8E93'}}>Note :</label>
+                        <select style={{height:34,background:'#fff',border:'1px solid #E8E8E8',borderRadius:7,padding:'0 10px',fontFamily:'inherit',fontSize:13,color:'#1C1C1E',outline:'none'}} value={newAvis.note} onChange={e => setNewAvis(a => ({ ...a, note: parseInt(e.target.value) }))}>
+                          <option value={5}>★★★★★ 5</option>
+                          <option value={4}>★★★★ 4</option>
+                          <option value={3}>★★★ 3</option>
+                        </select>
+                      </div>
+                      <button className="btn-black" onClick={addAvis} disabled={!newAvis.auteur || !newAvis.texte}>
+                        + Ajouter
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Liste avis */}
+                  {avis.length === 0 ? (
+                    <div style={{textAlign:'center',padding:'24px',color:'#C7C7CC',fontSize:13}}>
+                      Aucun avis ajouté — ajoutez vos meilleurs témoignages
+                    </div>
+                  ) : (
+                    <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                      {avis.map((a: any) => (
+                        <div key={a.id} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'12px',background:'#F9F9F9',borderRadius:8}}>
+                          <div style={{flex:1}}>
+                            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                              <span style={{fontSize:13,fontWeight:600,color:'#1C1C1E'}}>{a.auteur}</span>
+                              <span style={{fontSize:11,color:'#FF9500'}}>{'★'.repeat(a.note)}</span>
+                              {a.date_avis && <span style={{fontSize:11,color:'#C7C7CC'}}>{a.date_avis}</span>}
+                            </div>
+                            <div style={{fontSize:13,color:'#6B6B80',lineHeight:1.5}}>"{a.texte}"</div>
+                          </div>
+                          <button className="btn-del" onClick={() => deleteAvis(a.id)}>×</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+            
             {/* ── BIENS ── */}
             {tab === 'biens' && (
               <>
