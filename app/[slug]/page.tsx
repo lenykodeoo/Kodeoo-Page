@@ -50,8 +50,8 @@ export default async function AgentPage(props: any) {
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{background:#EBEBEB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1C1C1E;display:flex;justify-content:center;min-height:100vh}
-        .wrap{width:100%;max-width:480px;background:#F5F5F0;min-height:100vh}
+        body{background:#F5F5F0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1C1C1E;display:flex;justify-content:center;min-height:100vh}
+        .wrap{width:100%;max-width:480px;background:#fff;min-height:100vh}
 
         .kodeoo-top{padding:10px 16px;text-align:center;background:#F5F5F0}
         .kodeoo-top a{font-size:12px;color:#8E8E93;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
@@ -104,7 +104,7 @@ export default async function AgentPage(props: any) {
         .estim-input::placeholder{color:rgba(255,255,255,0.3)}
         .estim-select{width:100%;height:44px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none;cursor:pointer}
         .estim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-        .estim-btn{width:100%;height:50px;background:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#1C1C1E;cursor:pointer;font-family:inherit;margin-top:4px;transition:background 0.15s}
+        .estim-btn{width:100%;height:50px;background:#1C1C1E;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;margin-top:4px;transition:background 0.15s}
         .estim-btn:hover{background:#F5F5F0}
 
         .avis-wrap{background:#fff;margin-bottom:8px;padding:20px 0}
@@ -113,7 +113,7 @@ export default async function AgentPage(props: any) {
         .avis-note-sub{font-size:12px;color:#8E8E93;margin-top:3px}
         .avis-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none}
         .avis-scroll::-webkit-scrollbar{display:none}
-        .avis-card{background:#F5F5F0;border-radius:8px;padding:14px;min-width:210px;max-width:210px;flex-shrink:0}
+        .avis-card{background:#F7F7F5;border:1px solid #EFEFED;border-radius:8px;padding:14px;min-width:210px;max-width:210px;flex-shrink:0}
         .avis-stars{color:#FF9500;font-size:12px;margin-bottom:8px}
         .avis-text{font-size:13px;color:#1C1C1E;line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         .avis-meta{display:flex;align-items:center;gap:7px}
@@ -126,8 +126,7 @@ export default async function AgentPage(props: any) {
         .biens-count{font-size:13px;color:#8E8E93}
         .biens-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 16px;scrollbar-width:none}
         .biens-scroll::-webkit-scrollbar{display:none}
-        .bien-card{background:#fff;border:1px solid #EBEBEB;border-radius:8px;min-width:200px;max-width:200px;flex-shrink:0;overflow:hidden}
-        .bien-slider{position:relative;height:145px;background:#E8E8E8;overflow:hidden}
+.bien-card{background:#fff;border:1px solid #EBEBEB;border-radius:8px;min-width:200px;max-width:200px;flex-shrink:0;overflow:hidden;display:flex;flex-direction:column}        .bien-slider{position:relative;height:145px;background:#E8E8E8;overflow:hidden}
         .bien-slides{display:flex;height:100%;transition:transform 0.3s ease}
         .bien-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .bien-slide img{width:100%;height:100%;object-fit:cover}
@@ -139,10 +138,10 @@ export default async function AgentPage(props: any) {
         .bien-status{position:absolute;top:8px;right:8px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
         .bs-v{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff}
         .bs-o{background:rgba(255,149,0,0.2);border:1px solid rgba(255,149,0,0.4);color:#FF9500}
-        .bien-body{padding:10px 12px 12px}
+        .bien-body{padding:10px 12px 12px;display:flex;flex-direction:column;flex:1}
         .bien-loc{font-size:10px;color:#8E8E93;margin-bottom:3px}
         .bien-title{font-size:13px;font-weight:600;color:#1C1C1E;margin-bottom:8px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-        .bien-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.bien-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;flex:1;align-content:flex-start}
         .pill{background:#F5F5F0;border-radius:5px;padding:3px 7px;font-size:11px;color:#3C3C43;font-weight:500}
         .bien-cta{width:100%;height:36px;background:#fff;border:1.5px solid #1C1C1E;border-radius:6px;font-size:12px;font-weight:600;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;transition:background 0.15s}
         .bien-cta:hover{background:#F5F5F0}
