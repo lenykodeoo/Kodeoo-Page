@@ -1,6 +1,19 @@
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 
+const LEAD_MAGNETS: Record<string, { titre: string; description: string; icone: string }> = {
+  guide_vendeur: {
+    titre: 'Guide vendeur 2026',
+    description: 'Les étapes clés pour vendre son bien rapidement et au meilleur prix',
+    icone: 'ti-book'
+  },
+  checklist_estimation: {
+    titre: 'Checklist estimation',
+    description: 'Découvrez où se situe votre bien sur le marché',
+    icone: 'ti-checklist'
+  }
+}
+
 export default async function AgentPage(props: any) {
   const params = await props.params
   const slug = params.slug
@@ -21,6 +34,12 @@ export default async function AgentPage(props: any) {
     .neq('statut', 'vendu')
     .order('created_at', { ascending: false })
 
+  const { data: ressources } = await supabaseAdmin
+    .from('ressources')
+    .select('*')
+    .eq('agent_id', agent.id)
+    .eq('actif', true)
+
   const isAgence = agent.type === 'agence'
   const displayName = isAgence ? agent.nom : `${agent.prenom} ${agent.nom}`
   const initials = isAgence ? agent.nom?.[0] : `${agent.prenom?.[0] || ''}${agent.nom?.[0] || ''}`
@@ -31,226 +50,242 @@ export default async function AgentPage(props: any) {
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         html{scroll-behavior:smooth}
-        body{background:#F2F2F7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1C1C1E}
-        .wrap{width:100%;max-width:480px;margin:0 auto;background:#F2F2F7;min-height:100vh}
+        body{background:#EBEBEB;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1C1C1E;display:flex;justify-content:center;min-height:100vh}
+        .wrap{width:100%;max-width:480px;background:#F5F5F0;min-height:100vh}
 
-        /* ── TOPBAR ── */
-        .topbar{background:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,0,0,0.06)}
-        .kbadge{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:600;color:#1C1C1E;text-decoration:none}
-        .kdot{width:7px;height:7px;border-radius:50%;background:#6347FF}
-        .live{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:500;color:#34C759}
-        .ldot{width:6px;height:6px;border-radius:50%;background:#34C759;animation:lp 1.5s infinite}
-        @keyframes lp{0%,100%{opacity:1}50%{opacity:0.3}}
+        .kodeoo-top{padding:10px 16px;text-align:center;background:#F5F5F0}
+        .kodeoo-top a{font-size:12px;color:#8E8E93;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+        .k-dot{width:13px;height:13px;background:#1C1C1E;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff}
 
-        /* ── HERO ── */
-        .hero{background:#fff;padding:20px 16px 24px;margin-bottom:8px}
-        .profile-top{display:flex;align-items:center;gap:14px;margin-bottom:20px}
-        .avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,#E8E8FF,#D0D0FF);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#6347FF;flex-shrink:0;overflow:hidden;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.12)}
+        .hero{background:#fff;padding:28px 16px 22px;margin-bottom:8px}
+        .hero-center{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:22px}
+        .avatar{width:90px;height:90px;border-radius:50%;background:#E8E8E8;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#6B6B80;margin-bottom:14px;overflow:hidden;flex-shrink:0}
         .avatar img{width:100%;height:100%;object-fit:cover}
-        .profile-info{flex:1;min-width:0}
-        .profile-name{font-size:22px;font-weight:700;color:#1C1C1E;margin-bottom:3px;letter-spacing:-0.3px}
-        .profile-sub{font-size:14px;color:#6B6B80;margin-bottom:8px}
-        .profile-rating{display:flex;align-items:center;gap:5px;font-size:13px;color:#1C1C1E;font-weight:500}
-        .stars-row{display:flex;gap:1px}
-        .s{width:13px;height:13px;fill:#FF9500}
-        .rating-count{color:#8E8E93;font-weight:400}
+        .h-name{font-size:24px;font-weight:700;color:#1C1C1E;letter-spacing:-0.5px;margin-bottom:5px}
+        .h-sub{font-size:14px;color:#6B6B80;margin-bottom:10px}
+        .h-rating{display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;color:#1C1C1E}
+        .stars{color:#FF9500;font-size:13px;letter-spacing:1px}
+        .h-rating-count{color:#8E8E93}
+        .proofs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+        .proof{padding:5px 12px;background:#F5F5F0;border-radius:6px;font-size:12px;color:#3C3C43;font-weight:500}
+        .cta-main{width:100%;height:52px;background:#fff;border:1.5px solid #1C1C1E;border-radius:8px;font-size:15px;font-weight:600;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;font-family:inherit;transition:background 0.15s}
+        .cta-main:hover{background:#F5F5F0}
+        .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .cta-sec{height:46px;background:#F5F5F0;border:1px solid #E0E0DB;border-radius:8px;font-size:14px;font-weight:500;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:inherit;transition:background 0.15s}
+        .cta-sec:hover{background:#EBEBEB}
 
-        /* PREUVES */
-        .proofs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-        .proof{padding:6px 12px;background:#F2F2F7;border-radius:20px;font-size:12px;font-weight:500;color:#3C3C43}
-
-        /* CTA */
-        .cta-main{width:100%;height:54px;background:#6347FF;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;letter-spacing:-0.2px;font-family:inherit}
-        .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .cta-btn{height:48px;background:#F2F2F7;color:#1C1C1E;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;font-family:inherit}
-
-        /* ── SOCIALS ── */
         .socials-bar{background:#fff;padding:14px 16px;margin-bottom:8px;display:flex;justify-content:center;gap:10px}
-        .soc{width:44px;height:44px;background:#F2F2F7;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:19px}
+        .soc{width:44px;height:44px;background:#F5F5F0;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:20px;transition:background 0.15s}
+        .soc:hover{background:#EBEBEB}
 
-        /* ── SECTION ── */
-        .section-header{padding:16px 16px 10px;display:flex;align-items:center;justify-content:space-between}
-        .section-title{font-size:18px;font-weight:700;color:#1C1C1E;letter-spacing:-0.3px}
-        .section-count{font-size:14px;color:#8E8E93;font-weight:500}
+        .section-wrap{background:#fff;margin-bottom:8px;padding:20px 16px}
+        .sec-label{font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px}
 
-        /* ── LEAD MAGNET ── */
-        .lm-wrap{background:#fff;margin-bottom:8px;padding:20px 16px}
-        .lm-tag{display:inline-flex;align-items:center;gap:5px;background:#F0EEFF;color:#6347FF;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:12px;letter-spacing:0.02em;text-transform:uppercase}
-        .lm-title{font-size:18px;font-weight:700;color:#1C1C1E;margin-bottom:6px;letter-spacing:-0.3px;line-height:1.3}
-        .lm-sub{font-size:14px;color:#6B6B80;line-height:1.6;margin-bottom:16px}
-        .lm-input{width:100%;height:46px;background:#F2F2F7;border:none;border-radius:12px;padding:0 14px;font-size:15px;color:#1C1C1E;outline:none;margin-bottom:10px;font-family:inherit}
-        .lm-input::placeholder{color:#C7C7CC}
-        .lm-btn{width:100%;height:50px;background:#6347FF;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+        .ressource-card{border:1px solid #EBEBEB;border-radius:8px;padding:14px;margin-bottom:10px}
+        .ressource-card:last-child{margin-bottom:0}
+        .res-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+        .res-icon{width:42px;height:42px;background:#F5F5F0;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+        .res-title{font-size:15px;font-weight:600;color:#1C1C1E;margin-bottom:3px;line-height:1.3}
+        .res-desc{font-size:12px;color:#8E8E93;line-height:1.5}
+        .res-form{display:none;flex-direction:column;gap:6px;margin-bottom:10px}
+        .res-form.open{display:flex}
+        .res-input{height:42px;background:#F5F5F0;border:none;border-radius:7px;padding:0 12px;font-size:14px;color:#1C1C1E;outline:none;font-family:inherit;width:100%}
+        .res-input::placeholder{color:#C7C7CC}
+        .res-btn{width:100%;height:44px;background:#fff;border:1.5px solid #1C1C1E;border-radius:7px;font-size:13px;font-weight:600;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:background 0.15s}
+        .res-btn:hover{background:#F5F5F0}
+        .res-btn-open{width:100%;height:44px;background:#1C1C1E;border:none;border-radius:7px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;transition:background 0.15s}
+        .res-btn-open:hover{background:#2C2C2E}
 
-        /* ── ESTIMATION ── */
-        .estim-wrap{background:#1C1C1E;margin-bottom:8px;padding:24px 16px;position:relative;overflow:hidden}
-        .estim-wrap::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(99,71,255,0.25),transparent 70%);pointer-events:none}
-        .estim-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(99,71,255,0.2);color:#A78BFA;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;margin-bottom:12px;letter-spacing:0.02em;text-transform:uppercase}
+        .estim-wrap{background:#1C1C1E;margin-bottom:8px;padding:22px 16px}
+        .estim-label{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px}
         .estim-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-0.3px;line-height:1.3}
-        .estim-sub{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.6;margin-bottom:16px}
-        .estim-input{width:100%;height:46px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:0 14px;font-size:15px;color:#fff;outline:none;margin-bottom:10px;font-family:inherit;-webkit-appearance:none}
+        .estim-sub{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:16px}
+        .estim-input{width:100%;height:44px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none}
         .estim-input::placeholder{color:rgba(255,255,255,0.3)}
-        .estim-select{width:100%;height:46px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:0 14px;font-size:15px;color:#fff;outline:none;margin-bottom:10px;font-family:inherit;-webkit-appearance:none;cursor:pointer}
-        .estim-btn{width:100%;height:50px;background:#6347FF;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px}
+        .estim-select{width:100%;height:44px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none;cursor:pointer}
+        .estim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+        .estim-btn{width:100%;height:50px;background:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#1C1C1E;cursor:pointer;font-family:inherit;margin-top:4px;transition:background 0.15s}
+        .estim-btn:hover{background:#F5F5F0}
 
-        /* ── AVIS ── */
-        .avis-wrap{background:#fff;margin-bottom:8px}
-        .avis-global-bar{display:flex;align-items:center;gap:12px;padding:16px 16px 12px}
-        .avis-note-big{font-size:40px;font-weight:700;color:#1C1C1E;letter-spacing:-1px;line-height:1}
-        .avis-note-sub{font-size:13px;color:#8E8E93;margin-top:3px}
-        .avis-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 16px;scrollbar-width:none}
+        .avis-wrap{background:#fff;margin-bottom:8px;padding:20px 0}
+        .avis-global{display:flex;align-items:baseline;gap:10px;padding:0 16px;margin-bottom:16px}
+        .avis-note{font-size:42px;font-weight:700;color:#1C1C1E;letter-spacing:-2px;line-height:1}
+        .avis-note-sub{font-size:12px;color:#8E8E93;margin-top:3px}
+        .avis-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none}
         .avis-scroll::-webkit-scrollbar{display:none}
-        .avis-card{background:#F2F2F7;border-radius:16px;padding:16px;min-width:270px;max-width:270px;flex-shrink:0}
-        .avis-card-stars{display:flex;gap:2px;margin-bottom:10px}
-        .avis-text{font-size:14px;line-height:1.55;color:#1C1C1E;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-        .avis-meta{display:flex;align-items:center;gap:8px}
-        .avis-av{width:30px;height:30px;border-radius:50%;background:#E8E8FF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#6347FF;flex-shrink:0}
-        .avis-name{font-size:13px;font-weight:600;color:#1C1C1E}
-        .avis-date{font-size:12px;color:#8E8E93}
+        .avis-card{background:#F5F5F0;border-radius:8px;padding:14px;min-width:210px;max-width:210px;flex-shrink:0}
+        .avis-stars{color:#FF9500;font-size:12px;margin-bottom:8px}
+        .avis-text{font-size:13px;color:#1C1C1E;line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+        .avis-meta{display:flex;align-items:center;gap:7px}
+        .avis-av{width:28px;height:28px;border-radius:50%;background:#DDDDD8;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#6B6B80;flex-shrink:0}
+        .avis-name{font-size:12px;font-weight:600;color:#1C1C1E}
+        .avis-date{font-size:11px;color:#8E8E93}
 
-        /* ── BIENS ── */
         .biens-wrap{background:#fff;margin-bottom:8px}
-        .bien-card{background:#fff;border-radius:0;overflow:hidden;border-bottom:1px solid #F2F2F7}
-        .bien-card:last-child{border-bottom:none}
-        .bien-slider{position:relative;height:220px;overflow:hidden;background:#E8E8F0}
-        .bien-slides{display:flex;height:100%;transition:transform 0.35s ease}
-        .bien-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0}
+        .biens-header{padding:16px 16px 12px;display:flex;justify-content:space-between;align-items:center}
+        .biens-count{font-size:13px;color:#8E8E93}
+        .biens-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 16px;scrollbar-width:none}
+        .biens-scroll::-webkit-scrollbar{display:none}
+        .bien-card{background:#fff;border:1px solid #EBEBEB;border-radius:8px;min-width:200px;max-width:200px;flex-shrink:0;overflow:hidden}
+        .bien-slider{position:relative;height:145px;background:#E8E8E8;overflow:hidden}
+        .bien-slides{display:flex;height:100%;transition:transform 0.3s ease}
+        .bien-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
         .bien-slide img{width:100%;height:100%;object-fit:cover}
-        .bien-price-overlay{position:absolute;bottom:0;left:0;right:0;padding:40px 14px 14px;background:linear-gradient(transparent,rgba(0,0,0,0.5));color:#fff;font-size:20px;font-weight:700;letter-spacing:-0.3px}
-        .bien-nav-btn{position:absolute;top:50%;transform:translateY(-50%);width:32px;height:32px;background:rgba(255,255,255,0.9);border:none;border-radius:50%;cursor:pointer;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-        .bien-nav-prev{left:10px}
-        .bien-nav-next{right:10px}
-        .bien-img-count{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.5);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:20px;backdrop-filter:blur(4px)}
-        .bien-status-pill{position:absolute;top:10px;right:10px;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px}
-        .bp-vente{background:rgba(99,71,255,0.15);color:#6347FF;border:1px solid rgba(99,71,255,0.3)}
-        .bp-offre{background:rgba(255,149,0,0.15);color:#FF9500;border:1px solid rgba(255,149,0,0.3)}
-        .bien-body{padding:14px 16px 16px}
-        .bien-loc{font-size:12px;color:#8E8E93;margin-bottom:3px;display:flex;align-items:center;gap:4px}
-        .bien-title{font-size:16px;font-weight:600;color:#1C1C1E;margin-bottom:10px;line-height:1.3}
-        .bien-specs-row{display:flex;gap:8px;margin-bottom:14px}
-        .bspec{display:flex;align-items:center;gap:5px;background:#F2F2F7;padding:5px 10px;border-radius:8px;font-size:12px;font-weight:500;color:#3C3C43}
-        .bien-cta-btn{width:100%;height:46px;background:#6347FF;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+        .bien-price-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.55));color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.3px}
+        .bien-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;background:rgba(255,255,255,0.88);border:none;border-radius:50%;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+        .bien-nav-prev{left:8px}
+        .bien-nav-next{right:8px}
+        .bien-count-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.45);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+        .bien-status{position:absolute;top:8px;right:8px;font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px}
+        .bs-v{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff}
+        .bs-o{background:rgba(255,149,0,0.2);border:1px solid rgba(255,149,0,0.4);color:#FF9500}
+        .bien-body{padding:10px 12px 12px}
+        .bien-loc{font-size:10px;color:#8E8E93;margin-bottom:3px}
+        .bien-title{font-size:13px;font-weight:600;color:#1C1C1E;margin-bottom:8px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .bien-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+        .pill{background:#F5F5F0;border-radius:5px;padding:3px 7px;font-size:11px;color:#3C3C43;font-weight:500}
+        .bien-cta{width:100%;height:36px;background:#fff;border:1.5px solid #1C1C1E;border-radius:6px;font-size:12px;font-weight:600;color:#1C1C1E;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:inherit;transition:background 0.15s}
+        .bien-cta:hover{background:#F5F5F0}
 
-        /* ── A PROPOS ── */
-        .apropos-wrap{background:#fff;margin-bottom:8px;padding:20px 16px}
-        .apropos-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-        .apropos-av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,#E8E8FF,#D0D0FF);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#6347FF;flex-shrink:0;overflow:hidden}
+        .apropos-wrap{background:#fff;padding:20px 16px;margin-bottom:8px}
+        .apropos-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+        .apropos-av{width:48px;height:48px;border-radius:50%;background:#E8E8E8;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#6B6B80;flex-shrink:0;overflow:hidden}
         .apropos-av img{width:100%;height:100%;object-fit:cover}
-        .apropos-name{font-size:16px;font-weight:600;color:#1C1C1E}
+        .apropos-name{font-size:15px;font-weight:600;color:#1C1C1E}
         .apropos-role{font-size:13px;color:#8E8E93}
-        .apropos-text{font-size:15px;line-height:1.65;color:#3C3C43}
+        .apropos-text{font-size:14px;line-height:1.7;color:#3C3C43}
 
-        /* ── FOOTER CTA ── */
-        .footer-cta{background:#fff;margin-bottom:8px;padding:24px 16px}
-        .footer-cta-title{font-size:20px;font-weight:700;color:#1C1C1E;margin-bottom:4px;letter-spacing:-0.3px}
-        .footer-cta-sub{font-size:14px;color:#8E8E93;margin-bottom:18px}
-        .footer-cta-main{width:100%;height:54px;background:#6347FF;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:10px;font-family:inherit}
-        .footer-cta-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .footer-cta-sec{height:48px;background:#F2F2F7;color:#1C1C1E;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:inherit}
+        .footer-cta{background:#1C1C1E;padding:26px 16px;margin-bottom:8px}
+        .fc-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-0.3px}
+        .fc-sub{font-size:14px;color:rgba(255,255,255,0.45);margin-bottom:18px}
+        .fc-main{width:100%;height:52px;background:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;color:#1C1C1E;cursor:pointer;margin-bottom:10px;font-family:inherit;transition:background 0.15s}
+        .fc-main:hover{background:#F5F5F0}
+        .fc-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+        .fc-sec{height:46px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:14px;font-weight:500;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:inherit;transition:background 0.15s}
+        .fc-sec:hover{background:rgba(255,255,255,0.14)}
 
-        /* ── FOOTER ── */
-        .footer{padding:20px 16px 40px;text-align:center}
-        .foot-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none}
-        .foot-k{width:16px;height:16px;background:#6347FF;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff}
-        .foot-l{font-size:12px;color:#C7C7CC;font-weight:500}
+        .footer{padding:16px;text-align:center;background:#F5F5F0}
+        .foot-link{font-size:12px;color:#8E8E93;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
 
-        /* ── MODALS ── */
-        .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);backdrop-filter:blur(8px);z-index:200;display:none;align-items:flex-end;justify-content:center}
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);z-index:200;display:none;align-items:flex-end;justify-content:center}
         .overlay.open{display:flex}
-        .modal{background:#F2F2F7;border-radius:24px 24px 0 0;padding:8px 0 40px;width:100%;max-width:480px;animation:slideUp .3s cubic-bezier(.16,1,.3,1);max-height:95vh;overflow-y:auto}
-        @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
-        .modal-handle{width:36px;height:4px;background:rgba(0,0,0,0.15);border-radius:2px;margin:12px auto 20px}
-        .modal-section{background:#fff;border-radius:16px;margin:0 16px 12px;padding:16px}
-        .modal-title{font-size:20px;font-weight:700;color:#1C1C1E;margin-bottom:4px;letter-spacing:-0.3px;padding:0 16px}
-        .modal-sub{font-size:14px;color:#8E8E93;margin-bottom:16px;padding:0 16px}
-        .m-field{margin-bottom:10px}
-        .m-field label{display:block;font-size:12px;font-weight:600;color:#8E8E93;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.04em}
-        .m-field input,.m-field select,.m-field textarea{width:100%;height:44px;background:#F2F2F7;border:none;border-radius:10px;padding:0 13px;font-size:15px;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
-        .m-field input:focus,.m-field select:focus,.m-field textarea:focus{background:#E8E8ED}
-        .m-field textarea{height:80px;padding:12px 13px;resize:none;line-height:1.5}
+        .modal{background:#F5F5F0;border-radius:20px 20px 0 0;padding:8px 0 40px;width:100%;max-width:480px;animation:su .28s cubic-bezier(.16,1,.3,1);max-height:92vh;overflow-y:auto;position:relative}
+        @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+        .m-handle{width:36px;height:4px;background:rgba(0,0,0,0.12);border-radius:2px;margin:12px auto 20px}
+        .m-close{position:absolute;top:16px;right:16px;width:28px;height:28px;background:rgba(0,0,0,0.08);border:none;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#6B6B80}
+        .m-title{font-size:20px;font-weight:700;color:#1C1C1E;margin-bottom:4px;letter-spacing:-0.3px;padding:0 16px}
+        .m-sub{font-size:14px;color:#8E8E93;margin-bottom:14px;padding:0 16px}
+        .m-section{background:#fff;border-radius:10px;margin:0 16px 10px;padding:14px}
+        .m-field{margin-bottom:8px}
+        .m-field label{display:block;font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
+        .m-field input,.m-field select,.m-field textarea{width:100%;height:42px;background:#F5F5F0;border:none;border-radius:8px;padding:0 12px;font-size:14px;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
+        .m-field input:focus,.m-field select:focus,.m-field textarea:focus{background:#EBEBEB}
+        .m-field textarea{height:72px;padding:10px 12px;resize:none;line-height:1.5}
         .m-field input::placeholder,.m-field textarea::placeholder{color:#C7C7CC}
-        .radios{display:flex;gap:8px;margin-bottom:12px}
-        .radio{flex:1;height:38px;background:#F2F2F7;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#8E8E93;cursor:pointer}
-        .radio.on{background:#6347FF;color:#fff}
-        .m-close-btn{position:absolute;top:16px;right:16px;width:30px;height:30px;background:rgba(0,0,0,0.08);border:none;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;color:#6B6B80}
-        .btn-submit{width:100%;height:52px;background:#6347FF;color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;margin:0 16px;width:calc(100% - 32px);font-family:inherit}
+        .radios{display:flex;gap:6px;margin-bottom:10px}
+        .radio{flex:1;height:36px;background:#F5F5F0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#8E8E93;cursor:pointer}
+        .radio.on{background:#1C1C1E;color:#fff}
+        .m-submit{width:calc(100% - 32px);height:50px;background:#1C1C1E;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin:4px 16px 0;display:block;font-family:inherit;transition:background 0.15s}
+        .m-submit:hover{background:#2C2C2E}
       `}</style>
 
       <div className="wrap">
-        {/* ── TOPBAR ── */}
-        <div className="topbar">
-          <a className="kbadge" href="https://kodeoo.fr">
-            <span className="kdot"></span>
-            Kodeoo
+
+        {/* KODEOO TOP */}
+        <div className="kodeoo-top">
+          <a href="https://kodeoo.fr">
+            <span className="k-dot">K</span>
+            Propulsé par Kodeoo
           </a>
-          <div className="live">
-            <span className="ldot"></span>
-            En ligne
-          </div>
         </div>
 
-        {/* ── HERO ── */}
+        {/* HERO */}
         <div className="hero">
-          <div className="profile-top">
+          <div className="hero-center">
             <div className="avatar">
               {agent.photo_url ? <img src={agent.photo_url} alt={displayName} /> : <span>{initials}</span>}
             </div>
-            <div className="profile-info">
-              <div className="profile-name">{displayName}</div>
-              <div className="profile-sub">{isAgence ? 'Agence immobilière' : agent.reseau || 'Conseiller immobilier'} · {agent.ville}</div>
-              {agent.google_rating && (
-                <div className="profile-rating">
-                  <div className="stars-row">
-                    {[1,2,3,4,5].map(i => <svg key={i} className="s" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
-                  </div>
-                  <span>{agent.google_rating}</span>
-                  <span className="rating-count">· Avis Google</span>
-                </div>
-              )}
-            </div>
+            <div className="h-name">{displayName}</div>
+            <div className="h-sub">{isAgence ? 'Agence immobilière' : agent.reseau || 'Conseiller immobilier'} · {agent.ville}</div>
+            {agent.google_rating && (
+              <div className="h-rating">
+                <span className="stars">★★★★★</span>
+                <span style={{fontWeight:600}}>{agent.google_rating}</span>
+                <span className="h-rating-count">· Avis Google</span>
+              </div>
+            )}
           </div>
 
-          {(agent.biens_vendus > 0) && (
+          {(agent.biens_vendus > 0 || agent.experience) && (
             <div className="proofs">
-              {agent.biens_vendus > 0 && <span className="proof">✅ +{agent.biens_vendus} ventes</span>}
+              {agent.biens_vendus > 0 && <span className="proof">+{agent.biens_vendus} ventes</span>}
+              {agent.experience && <span className="proof">{agent.experience} ans d'expérience</span>}
             </div>
           )}
 
           <button className="cta-main" id="heroEstimBtn">
-            📊 Faire estimer mon bien
+            Faire estimer mon bien
           </button>
           <div className="cta-row">
-            <button className="cta-btn" id="heroMsgBtn">📲 Message</button>
-            <a className="cta-btn" href={`tel:${agent.telephone}`}>📞 Appeler</a>
+            <button className="cta-sec" id="heroMsgBtn">
+              <i className="ti ti-message" aria-hidden="true"></i> Message
+            </button>
+            <a className="cta-sec" href={`tel:${agent.telephone}`}>
+              <i className="ti ti-phone" aria-hidden="true"></i> Appeler
+            </a>
           </div>
         </div>
 
-        {/* ── RÉSEAUX SOCIAUX ── */}
+        {/* RÉSEAUX */}
         {(agent.instagram || agent.tiktok || agent.facebook || agent.linkedin || agent.youtube || agent.site_web) && (
           <div className="socials-bar">
-            {agent.instagram && <a className="soc" href={`https://instagram.com/${agent.instagram}`} target="_blank" rel="noreferrer">📸</a>}
-            {agent.tiktok && <a className="soc" href={`https://tiktok.com/@${agent.tiktok}`} target="_blank" rel="noreferrer">🎵</a>}
-            {agent.facebook && <a className="soc" href={agent.facebook.startsWith('http') ? agent.facebook : `https://facebook.com/${agent.facebook}`} target="_blank" rel="noreferrer">👤</a>}
-            {agent.linkedin && <a className="soc" href={agent.linkedin.startsWith('http') ? agent.linkedin : `https://linkedin.com/in/${agent.linkedin}`} target="_blank" rel="noreferrer">💼</a>}
-            {agent.youtube && <a className="soc" href={`https://youtube.com/@${agent.youtube}`} target="_blank" rel="noreferrer">▶️</a>}
-            {agent.site_web && <a className="soc" href={agent.site_web.startsWith('http') ? agent.site_web : `https://${agent.site_web}`} target="_blank" rel="noreferrer">🌐</a>}
+            {agent.instagram && <a className="soc" href={`https://instagram.com/${agent.instagram}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-instagram" aria-hidden="true"></i></a>}
+            {agent.tiktok && <a className="soc" href={`https://tiktok.com/@${agent.tiktok}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-tiktok" aria-hidden="true"></i></a>}
+            {agent.facebook && <a className="soc" href={agent.facebook.startsWith('http') ? agent.facebook : `https://facebook.com/${agent.facebook}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-facebook" aria-hidden="true"></i></a>}
+            {agent.linkedin && <a className="soc" href={agent.linkedin.startsWith('http') ? agent.linkedin : `https://linkedin.com/in/${agent.linkedin}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-linkedin" aria-hidden="true"></i></a>}
+            {agent.youtube && <a className="soc" href={`https://youtube.com/@${agent.youtube}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-youtube" aria-hidden="true"></i></a>}
+            {agent.site_web && <a className="soc" href={agent.site_web.startsWith('http') ? agent.site_web : `https://${agent.site_web}`} target="_blank" rel="noreferrer"><i className="ti ti-world" aria-hidden="true"></i></a>}
           </div>
         )}
 
-        {/* ── LEAD MAGNET ── */}
-        <div className="lm-wrap">
-          <div className="lm-tag">📄 Guide gratuit</div>
-          <div className="lm-title">Vendre au meilleur prix en 2026</div>
-          <div className="lm-sub">Téléchargez notre guide complet pour préparer votre vente et maximiser votre prix de vente.</div>
-          <input className="lm-input" type="text" placeholder="Votre prénom" id="lmPrenom" />
-          <input className="lm-input" type="email" placeholder="Votre email" id="lmEmail" />
-          <button className="lm-btn" id="lmBtn">📩 Télécharger gratuitement</button>
-        </div>
+        {/* RESSOURCES */}
+        {ressources && ressources.length > 0 && (
+          <div className="section-wrap">
+            <div className="sec-label">Ressources</div>
+            {ressources.map((r: any) => {
+              const lm = LEAD_MAGNETS[r.lead_magnet_id]
+              if (!lm) return null
+              return (
+                <div key={r.id} className="ressource-card">
+                  <div className="res-top">
+                    <div className="res-icon">
+                      <i className={`ti ${lm.icone}`} aria-hidden="true"></i>
+                    </div>
+                    <div>
+                      <div className="res-title">{lm.titre}</div>
+                      <div className="res-desc">{lm.description}</div>
+                    </div>
+                  </div>
+                  <div className="res-form" id={`form-${r.id}`}>
+                    <input className="res-input" type="text" placeholder="Votre prénom" id={`lm-prenom-${r.id}`} />
+                    <input className="res-input" type="email" placeholder="Votre email" id={`lm-email-${r.id}`} />
+                    <button className="res-btn" data-ressource-id={r.id} data-pdf-url={r.pdf_url} data-lm-id={r.lead_magnet_id}>
+                      <i className="ti ti-download" aria-hidden="true"></i> Télécharger gratuitement
+                    </button>
+                  </div>
+                  <button className="res-btn-open" data-open-form={r.id} id={`open-${r.id}`}>
+                    <i className="ti ti-download" aria-hidden="true"></i> Télécharger gratuitement
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
 
-        {/* ── ESTIMATION ── */}
+        {/* ESTIMATION */}
         <div className="estim-wrap">
-          <div className="estim-tag">✨ Gratuit</div>
-          <div className="estim-title">Quelle est la vraie valeur de votre bien ?</div>
+          <div className="estim-label">Estimation gratuite</div>
+          <div className="estim-title">Découvrez la valeur de votre bien</div>
           <div className="estim-sub">Recevez une estimation personnalisée sous 24h.</div>
           <input className="estim-input" type="text" placeholder="Adresse du bien" id="estimAdresse" />
           <select className="estim-select" id="estimType">
@@ -261,42 +296,40 @@ export default async function AgentPage(props: any) {
             <option>Studio</option>
             <option>Local commercial</option>
           </select>
-          <input className="estim-input" type="number" placeholder="Surface en m²" id="estimSurface" />
-          <input className="estim-input" type="tel" placeholder="Votre téléphone" id="estimTel" />
+          <div className="estim-grid">
+            <input className="estim-input" style={{marginBottom:0}} type="number" placeholder="Surface m²" id="estimSurface" />
+            <input className="estim-input" style={{marginBottom:0}} type="tel" placeholder="Téléphone" id="estimTel" />
+          </div>
           <input className="estim-input" type="email" placeholder="Votre email" id="estimEmail" />
-          <button className="estim-btn" id="estimBtn">📊 Recevoir mon estimation gratuite</button>
+          <button className="estim-btn" id="estimBtn">Recevoir mon estimation gratuite</button>
         </div>
 
-        {/* ── AVIS ── */}
+        {/* AVIS */}
         <div className="avis-wrap">
-          <div className="section-header">
-            <div className="section-title">Avis clients</div>
+          <div style={{padding:'0 16px',marginBottom:6}}>
+            <div className="sec-label">Avis clients</div>
           </div>
-          <div className="avis-global-bar">
-            <div className="avis-note-big">{agent.google_rating || '5,0'}</div>
+          <div className="avis-global">
+            <div className="avis-note">{agent.google_rating || '5,0'}</div>
             <div>
-              <div className="stars-row" style={{marginBottom:4}}>
-                {[1,2,3,4,5].map(i => <svg key={i} className="s" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
-              </div>
+              <div className="stars" style={{fontSize:15}}>★★★★★</div>
               <div className="avis-note-sub">Avis Google</div>
             </div>
           </div>
           <div className="avis-scroll">
             {[
-              {i:'MR', n:'Marie R.', d:'Mars 2026', t:"Excellent accompagnement du début à la fin. Professionnel, réactif et de très bons conseils. Je recommande vivement !"},
-              {i:'TC', n:'Thomas C.', d:'Fév. 2026', t:"Première acquisition et j'ai été guidé parfaitement. Une vraie expertise du marché local, très rassurant."},
-              {i:'SL', n:'Sophie L.', d:'Jan. 2026', t:"Vente conclue en 3 semaines au prix demandé. Résultat exceptionnel, merci pour votre professionnalisme !"},
-            ].map((avis, i) => (
+              {i:'MR',n:'Marie R.',d:'Mars 2026',t:'Excellent accompagnement du début à la fin. Vente conclue en 3 semaines au prix demandé.'},
+              {i:'TC',n:'Thomas C.',d:'Fév. 2026',t:'Expertise remarquable du marché local. Première acquisition réussie grâce à ses conseils.'},
+              {i:'SL',n:'Sophie L.',d:'Jan. 2026',t:'Très professionnel, réactif et humain. Je recommande vivement sans hésitation.'},
+            ].map((a, i) => (
               <div key={i} className="avis-card">
-                <div className="avis-card-stars">
-                  {[1,2,3,4,5].map(j => <svg key={j} className="s" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>)}
-                </div>
-                <div className="avis-text">&quot;{avis.t}&quot;</div>
+                <div className="avis-stars">★★★★★</div>
+                <div className="avis-text">&quot;{a.t}&quot;</div>
                 <div className="avis-meta">
-                  <div className="avis-av">{avis.i}</div>
+                  <div className="avis-av">{a.i}</div>
                   <div>
-                    <div className="avis-name">{avis.n}</div>
-                    <div className="avis-date">{avis.d}</div>
+                    <div className="avis-name">{a.n}</div>
+                    <div className="avis-date">{a.d}</div>
                   </div>
                 </div>
               </div>
@@ -304,59 +337,61 @@ export default async function AgentPage(props: any) {
           </div>
         </div>
 
-        {/* ── BIENS ── */}
+        {/* BIENS */}
         {biens && biens.length > 0 && (
           <div className="biens-wrap">
-            <div className="section-header">
-              <div className="section-title">{isAgence ? 'Nos biens' : 'Mes biens'}</div>
-              <div className="section-count">{biens.length} bien{biens.length > 1 ? 's' : ''}</div>
+            <div className="biens-header">
+              <div className="sec-label" style={{marginBottom:0}}>{isAgence ? 'Nos biens' : 'Mes biens'}</div>
+              <div className="biens-count">{biens.length} bien{biens.length > 1 ? 's' : ''}</div>
             </div>
-            {biens.map((bien: any, idx: number) => (
-              <div key={bien.id} className="bien-card">
-                <div className="bien-slider">
-                  <div className="bien-slides" id={`slides-${idx}`}>
-                    {bien.photos && bien.photos.length > 0
-                      ? bien.photos.slice(0,8).map((photo: string, pi: number) => (
-                          <div key={pi} className="bien-slide">
-                            <img src={photo} alt={bien.titre} />
-                          </div>
-                        ))
-                      : <div className="bien-slide">🏠</div>
-                    }
+            <div className="biens-scroll">
+              {biens.map((bien: any, idx: number) => (
+                <div key={bien.id} className="bien-card">
+                  <div className="bien-slider">
+                    <div className="bien-slides" id={`slides-${idx}`}>
+                      {bien.photos && bien.photos.length > 0
+                        ? bien.photos.slice(0,8).map((p: string, pi: number) => (
+                            <div key={pi} className="bien-slide"><img src={p} alt={bien.titre} /></div>
+                          ))
+                        : <div className="bien-slide" style={{fontSize:36,color:'#DDDDD8'}}>🏠</div>
+                      }
+                    </div>
+                    {bien.photos && bien.photos.length > 1 && (
+                      <>
+                        <button className="bien-nav bien-nav-prev" data-idx={idx} data-dir="-1" data-total={Math.min(bien.photos.length,8)}>‹</button>
+                        <button className="bien-nav bien-nav-next" data-idx={idx} data-dir="1" data-total={Math.min(bien.photos.length,8)}>›</button>
+                        <div className="bien-count-badge" id={`count-${idx}`}>1/{Math.min(bien.photos.length,8)}</div>
+                      </>
+                    )}
+                    <div className="bien-price-overlay">
+                      {bien.prix ? bien.prix.toLocaleString('fr-FR') + ' €' : 'Prix sur demande'}
+                    </div>
+                    <span className={`bien-status ${bien.statut === 'sous_offre' ? 'bs-o' : 'bs-v'}`}>
+                      {bien.statut === 'sous_offre' ? 'Sous offre' : 'Vente'}
+                    </span>
                   </div>
-                  {bien.photos && bien.photos.length > 1 && (
-                    <>
-                      <button className="bien-nav-btn bien-nav-prev" data-idx={idx} data-dir="-1" data-total={Math.min(bien.photos.length, 8)}>‹</button>
-                      <button className="bien-nav-btn bien-nav-next" data-idx={idx} data-dir="1" data-total={Math.min(bien.photos.length, 8)}>›</button>
-                      <div className="bien-img-count" id={`count-${idx}`}>1/{Math.min(bien.photos.length, 8)}</div>
-                    </>
-                  )}
-                  <div className="bien-price-overlay">
-                    {bien.prix ? bien.prix.toLocaleString('fr-FR') + ' €' : 'Prix sur demande'}
+                  <div className="bien-body">
+                    <div className="bien-loc">{bien.ville}{bien.quartier ? ` · ${bien.quartier}` : ''}</div>
+                    <div className="bien-title">{bien.titre}</div>
+                    <div className="bien-pills">
+                      {bien.surface && <span className="pill">{bien.surface} m²</span>}
+                      {bien.pieces && <span className="pill">{bien.pieces} p.</span>}
+                      {bien.chambres && <span className="pill">{bien.chambres} ch.</span>}
+                    </div>
+                    <button className="bien-cta" data-modal="contact">
+                      Voir le bien <i className="ti ti-arrow-right" aria-hidden="true"></i>
+                    </button>
                   </div>
-                  <span className={`bien-status-pill ${bien.statut === 'sous_offre' ? 'bp-offre' : 'bp-vente'}`}>
-                    {bien.statut === 'sous_offre' ? 'Sous offre' : 'Vente'}
-                  </span>
                 </div>
-                <div className="bien-body">
-                  <div className="bien-loc">📍 {bien.ville}{bien.quartier ? ` · ${bien.quartier}` : ''}</div>
-                  <div className="bien-title">{bien.titre}</div>
-                  <div className="bien-specs-row">
-                    {bien.surface && <span className="bspec">⬜ {bien.surface} m²</span>}
-                    {bien.pieces && <span className="bspec">🚪 {bien.pieces} p.</span>}
-                    {bien.chambres && <span className="bspec">🛏 {bien.chambres} ch.</span>}
-                  </div>
-                  <button className="bien-cta-btn" data-modal="contact">Voir le bien →</button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
 
-        {/* ── À PROPOS ── */}
+        {/* À PROPOS */}
         {agent.bio && (
           <div className="apropos-wrap">
-            <div className="section-title" style={{marginBottom:16}}>À propos</div>
+            <div className="sec-label">À propos</div>
             <div className="apropos-top">
               <div className="apropos-av">
                 {agent.photo_url ? <img src={agent.photo_url} alt={displayName} /> : <span>{initials}</span>}
@@ -370,35 +405,35 @@ export default async function AgentPage(props: any) {
           </div>
         )}
 
-        {/* ── FOOTER CTA ── */}
+        {/* FOOTER CTA */}
         <div className="footer-cta">
-          <div className="footer-cta-title">Un projet immobilier ?</div>
-          <div className="footer-cta-sub">{isAgence ? 'Contactez-nous, nous répondons rapidement.' : 'Contactez-moi directement, je réponds rapidement.'}</div>
-          <button className="footer-cta-main" id="footerEstimBtn">📊 Faire estimer mon bien</button>
-          <div className="footer-cta-row">
-            <button className="footer-cta-sec" id="footerMsgBtn">📲 Message</button>
-            <a className="footer-cta-sec" href={`tel:${agent.telephone}`}>📞 Appeler</a>
+          <div className="fc-title">Un projet immobilier ?</div>
+          <div className="fc-sub">{isAgence ? 'Contactez-nous, nous répondons rapidement.' : 'Contactez-moi, je réponds rapidement.'}</div>
+          <button className="fc-main" id="footerEstimBtn">Faire estimer mon bien</button>
+          <div className="fc-row">
+            <button className="fc-sec" id="footerMsgBtn"><i className="ti ti-message" aria-hidden="true"></i> Message</button>
+            <a className="fc-sec" href={`tel:${agent.telephone}`}><i className="ti ti-phone" aria-hidden="true"></i> Appeler</a>
           </div>
         </div>
 
-        {/* ── FOOTER ── */}
+        {/* FOOTER */}
         <div className="footer">
           <a className="foot-link" href="https://kodeoo.fr">
-            <span className="foot-k">K</span>
-            <span className="foot-l">Propulsé par Kodeoo</span>
+            <span className="k-dot">K</span>
+            Propulsé par Kodeoo
           </a>
         </div>
 
-        {/* ── MODALS ── */}
+        {/* MODAL CONTACT */}
         <div className="overlay" id="m-contact">
-          <div className="modal" style={{position:'relative'}}>
-            <div className="modal-handle"></div>
-            <button className="m-close-btn" id="closeContact" style={{position:'absolute',top:16,right:16}}>×</button>
-            <div className="modal-title">Envoyer un message</div>
-            <div className="modal-sub">{displayName} vous répond rapidement</div>
-            <div className="modal-section">
+          <div className="modal">
+            <div className="m-handle"></div>
+            <button className="m-close" id="closeContact">×</button>
+            <div className="m-title">Envoyer un message</div>
+            <div className="m-sub">{displayName} vous répond rapidement</div>
+            <div className="m-section">
               <div style={{marginBottom:10}}>
-                <div style={{fontSize:12,fontWeight:600,color:'#8E8E93',marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>Vous êtes</div>
+                <div style={{fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:6}}>Vous êtes</div>
                 <div className="radios">
                   <div className="radio on" id="r-acheteur">Acheteur</div>
                   <div className="radio" id="r-vendeur">Vendeur</div>
@@ -410,17 +445,18 @@ export default async function AgentPage(props: any) {
               <div className="m-field"><label>Téléphone</label><input type="tel" id="cTel" placeholder="06 00 00 00 00"/></div>
               <div className="m-field"><label>Votre projet</label><textarea id="cMsg" placeholder="Décrivez votre projet…"></textarea></div>
             </div>
-            <button className="btn-submit" id="submitContact">Envoyer →</button>
+            <button className="m-submit" id="submitContact">Envoyer →</button>
           </div>
         </div>
 
+        {/* MODAL ESTIMATION */}
         <div className="overlay" id="m-estimation">
-          <div className="modal" style={{position:'relative'}}>
-            <div className="modal-handle"></div>
-            <button className="m-close-btn" id="closeEstim" style={{position:'absolute',top:16,right:16}}>×</button>
-            <div className="modal-title">Estimer mon bien</div>
-            <div className="modal-sub">Estimation gratuite sous 24h</div>
-            <div className="modal-section">
+          <div className="modal">
+            <div className="m-handle"></div>
+            <button className="m-close" id="closeEstim">×</button>
+            <div className="m-title">Estimer mon bien</div>
+            <div className="m-sub">Estimation gratuite sous 24h</div>
+            <div className="m-section">
               <div className="m-field"><label>Adresse</label><input type="text" id="eAdresse" placeholder="12 rue de la Paix, Nice"/></div>
               <div className="m-field"><label>Type de bien</label>
                 <select id="eType"><option value="">Choisir...</option><option>Appartement</option><option>Maison</option><option>Villa</option><option>Studio</option></select>
@@ -429,10 +465,13 @@ export default async function AgentPage(props: any) {
               <div className="m-field"><label>Téléphone</label><input type="tel" id="eTel" placeholder="06 00 00 00 00"/></div>
               <div className="m-field"><label>Email</label><input type="email" id="eEmail" placeholder="jean@exemple.fr"/></div>
             </div>
-            <button className="btn-submit" id="submitEstim">Recevoir mon estimation →</button>
+            <button className="m-submit" id="submitEstim">Recevoir mon estimation →</button>
           </div>
         </div>
+
       </div>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
 
       <script dangerouslySetInnerHTML={{__html: `
         (function() {
@@ -467,12 +506,13 @@ export default async function AgentPage(props: any) {
             });
           });
 
-          document.querySelectorAll('.bien-cta-btn').forEach(function(btn) {
+          document.querySelectorAll('.bien-cta').forEach(function(btn) {
             btn.addEventListener('click', function() { openM('contact'); });
           });
 
+          // Slider biens
           var sliderPos = {};
-          document.querySelectorAll('.bien-nav-btn').forEach(function(btn) {
+          document.querySelectorAll('.bien-nav').forEach(function(btn) {
             btn.addEventListener('click', function(e) {
               e.stopPropagation();
               var idx = parseInt(btn.getAttribute('data-idx'));
@@ -487,6 +527,39 @@ export default async function AgentPage(props: any) {
             });
           });
 
+          // Ressources — toggle form
+          document.querySelectorAll('[data-open-form]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var id = btn.getAttribute('data-open-form');
+              var form = document.getElementById('form-' + id);
+              var openBtn = document.getElementById('open-' + id);
+              if (form) { form.classList.toggle('open'); }
+              if (openBtn) { openBtn.style.display = form.classList.contains('open') ? 'none' : 'flex'; }
+            });
+          });
+
+          // Ressources — submit
+          document.querySelectorAll('[data-ressource-id]').forEach(function(btn) {
+            btn.addEventListener('click', async function() {
+              var rid = btn.getAttribute('data-ressource-id');
+              var pdfUrl = btn.getAttribute('data-pdf-url');
+              var lmId = btn.getAttribute('data-lm-id');
+              var prenom = document.getElementById('lm-prenom-' + rid)?.value || '';
+              var email = document.getElementById('lm-email-' + rid)?.value || '';
+              if (!email) { alert('Veuillez renseigner votre email'); return; }
+              try {
+                await fetch('/api/leads', {
+                  method: 'POST',
+                  headers: {'Content-Type': 'application/json'},
+                  body: JSON.stringify({ agent_id: AGENT_ID, type: 'lead_magnet', nom: prenom, email: email, lead_magnet: lmId, message: '' })
+                });
+                if (pdfUrl) { window.open(pdfUrl, '_blank'); }
+                else { alert('✅ Merci ! Vous recevrez le document par email.'); }
+              } catch(e) { alert('Erreur réseau'); }
+            });
+          });
+
+          // Submit leads
           async function submitLead(type) {
             var data = { agent_id: AGENT_ID, type: type };
             if (type === 'contact') {
@@ -502,17 +575,12 @@ export default async function AgentPage(props: any) {
               var surface = (document.getElementById('eSurface') || document.getElementById('estimSurface'))?.value || '';
               var typeB = (document.getElementById('eType') || document.getElementById('estimType'))?.value || '';
               data.message = 'Adresse: ' + adresse + ' | Type: ' + typeB + ' | Surface: ' + surface + 'm²';
-            } else if (type === 'lead_magnet') {
-              data.nom = document.getElementById('lmPrenom')?.value || '';
-              data.email = document.getElementById('lmEmail')?.value || '';
-              data.lead_magnet = 'Guide Vendeur 2026';
-              data.message = '';
             }
             if (!data.email) { alert('Veuillez renseigner votre email'); return; }
             try {
               var res = await fetch('/api/leads', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
               });
               var result = await res.json();
@@ -520,12 +588,11 @@ export default async function AgentPage(props: any) {
                 closeM('contact'); closeM('estimation');
                 alert('✅ Votre demande a bien été envoyée !');
               }
-            } catch(e) { alert('Erreur réseau, veuillez réessayer'); }
+            } catch(e) { alert('Erreur réseau'); }
           }
 
           document.getElementById('submitContact')?.addEventListener('click', function() { submitLead('contact'); });
           document.getElementById('submitEstim')?.addEventListener('click', function() { submitLead('estimation'); });
-          document.getElementById('lmBtn')?.addEventListener('click', function() { submitLead('lead_magnet'); });
           document.getElementById('estimBtn')?.addEventListener('click', function() { submitLead('estimation'); });
         })();
       `}} />
