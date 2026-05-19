@@ -19,15 +19,49 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
     }
 
+    // Vérifier si le membre a déjà une page
+    const { data: existing } = await supabaseAdmin
+      .from('agents')
+      .select('id, slug')
+      .eq('kodeoo_member_id', kodeoo_member_id)
+      .single()
+
+    if (existing) {
+      // Le membre existe déjà — retourner ses infos
+      const response = NextResponse.json({
+        success: true,
+        agent: existing,
+        url: `https://go.kodeoo.fr/${existing.slug}`,
+        already_exists: true
+      })
+
+      response.cookies.set('kodeoo_agent_id', existing.id, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+      })
+
+      response.cookies.set('kodeoo_slug', existing.slug, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 30,
+        path: '/',
+      })
+
+      return response
+    }
+
+    // Créer un nouveau slug
     let slug = generateSlug(prenom, nom)
 
-    const { data: existing } = await supabaseAdmin
+    const { data: slugExists } = await supabaseAdmin
       .from('agents')
       .select('slug')
       .eq('slug', slug)
       .single()
 
-    if (existing) {
+    if (slugExists) {
       slug = slug + '-' + Math.floor(Math.random() * 999)
     }
 
@@ -54,14 +88,14 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error
 
-    const response = NextResponse.json({ 
-      success: true, 
-      agent, 
-      url: `https://go.kodeoo.fr/${slug}` 
+    const response = NextResponse.json({
+      success: true,
+      agent,
+      url: `https://go.kodeoo.fr/${slug}`
     })
 
     response.cookies.set('kodeoo_agent_id', agent.id, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
