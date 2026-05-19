@@ -47,6 +47,13 @@ export default async function AgentPage(props: any) {
     .order('created_at', { ascending: false })
     .limit(10)
 
+    // Enregistrer la vue
+  try {
+    await supabaseAdmin
+      .from('page_views')
+      .insert({ agent_id: agent.id })
+  } catch {}
+  
   const isAgence = agent.type === 'agence'
   const displayName = isAgence ? agent.nom : `${agent.prenom} ${agent.nom}`
   const initials = isAgence ? agent.nom?.[0] : `${agent.prenom?.[0] || ''}${agent.nom?.[0] || ''}`

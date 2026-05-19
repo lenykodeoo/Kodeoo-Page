@@ -22,6 +22,7 @@ export default function Dashboard() {
   const [ressources, setRessources] = useState<any[]>([])
   const [uploadingId, setUploadingId] = useState<string | null>(null)
   const [leads, setLeads] = useState<any[]>([])
+  const [views, setViews] = useState({ today: 0, month: 0, total: 0 })
   const [avis, setAvis] = useState<any[]>([])
   const [mobileNav, setMobileNav] = useState(false)
   const [agent, setAgent] = useState<any>(null)
@@ -61,6 +62,7 @@ export default function Dashboard() {
     loadBiens(id)
     loadRessources(id)
     loadLeads(id)
+    loadViews(id)
     loadAvis(id)
     loadAgent(id)
   }, [])
@@ -79,6 +81,11 @@ export default function Dashboard() {
     const res = await fetch(`/api/leads?agent_id=${id}`)
     const data = await res.json()
     if (data.success) setLeads(data.leads)
+  }
+const loadViews = async (id: string) => {
+    const res = await fetch(`/api/views?agent_id=${id}`)
+    const data = await res.json()
+    if (data.success) setViews(data.views)
   }
 const loadAvis = async (id: string) => {
     const res = await fetch(`/api/avis?agent_id=${id}`)
@@ -484,20 +491,38 @@ const loadAvis = async (id: string) => {
 
             {/* ── STATS ── */}
             {tab === 'biens' && (
-              <div className="stats-row">
-                <div className="stat-card">
-                  <div className="stat-value">{biens.length}</div>
-                  <div className="stat-label">Biens actifs</div>
+              <>
+                <div className="stats-row">
+                  <div className="stat-card">
+                    <div className="stat-value">{views.today}</div>
+                    <div className="stat-label">Vues aujourd'hui</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{views.month}</div>
+                    <div className="stat-label">Vues ce mois</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{views.total}</div>
+                    <div className="stat-label">Vues total</div>
+                  </div>
                 </div>
-                <div className="stat-card">
-                  <div className="stat-value">{leads.length}</div>
-                  <div className="stat-label">Leads total</div>
+                <div className="stats-row">
+                  <div className="stat-card">
+                    <div className="stat-value">{biens.length}</div>
+                    <div className="stat-label">Biens actifs</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">{leads.length}</div>
+                    <div className="stat-label">Leads total</div>
+                  </div>
+                  <div className="stat-card">
+                    <div className="stat-value">
+                      {views.month > 0 ? Math.round((leads.length / views.month) * 100) : 0}%
+                    </div>
+                    <div className="stat-label">Taux conversion</div>
+                  </div>
                 </div>
-                <div className="stat-card">
-                  <div className="stat-value">{leads.filter(l => !l.is_read).length}</div>
-                  <div className="stat-label">Non lus</div>
-                </div>
-              </div>
+              </>
             )}
 
 {/* ── PROFIL ── */}
