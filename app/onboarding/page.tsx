@@ -198,14 +198,13 @@ export default function OnboardingPage() {
             <div className="type-grid">
               <div className={`type-opt ${type === 'conseiller' ? 'on' : ''}`} onClick={() => setType('conseiller')}>
                 <div className="type-icon">👤</div>
-                <div className="type-name">Conseiller</div>
-                <div className="type-desc">Agent indépendant, IAD, Safti, ou au sein d'une agence</div>
+                <div className="type-name">Conseiller Immobilier</div>
+<div className="type-desc">Vous êtes agent indépendant au sein d'un réseau ou d'une agence</div>
               </div>
               <div className={`type-opt ${type === 'agence' ? 'on' : ''}`} onClick={() => setType('agence')}>
                 <div className="type-icon">🏢</div>
                 <div className="type-name">Agence</div>
-                <div className="type-desc">Agence immobilière avec logo et nom d'enseigne</div>
-              </div>
+<div className="type-desc">Vous êtes une agence immobilière</div>              </div>
             </div>
 
             <div className="nav">
