@@ -38,7 +38,7 @@ export default function OnboardingPage() {
     reader.readAsDataURL(file)
   }
 
-  const publish = async () => {
+ const publish = async () => {
     setLoading(true)
     try {
       const getCookie = (name: string) => {
@@ -74,7 +74,7 @@ export default function OnboardingPage() {
       setAgentId(newAgentId)
       setSlug(newSlug)
 
-      // Sauvegarder preuves sociales
+      // Preuves sociales
       if (form.biens_vendus || form.experience || form.google_rating) {
         await fetch('/api/agent-profil', {
           method: 'POST',
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
         })
       }
 
-      // Upload photo si présente
+      // Upload photo
       if (photoFile) {
         const fd = new FormData()
         fd.append('agent_id', newAgentId)
@@ -97,60 +97,63 @@ export default function OnboardingPage() {
         await fetch('/api/upload-photo', { method: 'POST', body: fd })
       }
 
-      // Sauvegarder slug dans WordPress
+      // Slug WordPress
       const secret = 'kodeoo-secret-2026'
       const token = btoa(memberId + ':' + secret).slice(0, 32)
-      await fetch('https://kodeoo.fr/wp-admin/admin-ajax.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ action: 'kodeoo_save_slug', member_id: memberId, slug: newSlug, token })
-      })
-
-      setStep(5)
-    } catch (e) { alert('Erreur réseau') }
-    setLoading(false)
-  }
-
-  const importBiens = async () => {
-    if (!agentId) return
-    setImportLoading(true)
-    try {
-      if (importMode === 'liste' && importUrl) {
-        const res = await fetch('/api/import-all', {
+      try {
+        await fetch('https://kodeoo.fr/wp-admin/admin-ajax.php', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ agent_id: agentId, list_url: importUrl })
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ action: 'kodeoo_save_slug', member_id: memberId, slug: newSlug, token })
         })
-        const data = await res.json()
-        if (data.success) { setImportCount(data.importes); setImportDone(true) }
-      } else if (importMode === 'unitaire') {
+      } catch {}
+
+      // Import biens si URL fournie
+      if (importUrl && importMode === 'liste') {
+        setImportLoading(true)
+        try {
+          const importRes = await fetch('/api/import-all', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ agent_id: newAgentId, list_url: importUrl })
+          })
+          const importData = await importRes.json()
+          if (importData.success) { setImportCount(importData.importes); setImportDone(true) }
+        } catch {}
+        setImportLoading(false)
+      }
+
+      if (importMode === 'unitaire' && importUrls.filter(u => u.trim()).length > 0) {
+        setImportLoading(true)
         let count = 0
         for (const url of importUrls.filter(u => u.trim())) {
-          const res = await fetch('/api/biens', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-          })
-          // Scrape puis save
-          const scrapeRes = await fetch('/api/scrape', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url })
-          })
-          const scrapeData = await scrapeRes.json()
-          if (scrapeData.success) {
-            await fetch('/api/biens', {
+          try {
+            const scrapeRes = await fetch('/api/scrape', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ agent_id: agentId, ...scrapeData.bien })
+              body: JSON.stringify({ url })
             })
-            count++
-          }
+            const scrapeData = await scrapeRes.json()
+            if (scrapeData.success) {
+              await fetch('/api/biens', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ agent_id: newAgentId, ...scrapeData.bien })
+              })
+              count++
+            }
+          } catch {}
         }
         setImportCount(count)
         setImportDone(true)
+        setImportLoading(false)
       }
-    } catch (e) { alert('Erreur import') }
-    setImportLoading(false)
+
+      setStep(5)
+    } catch (e) {
+      alert('Erreur réseau')
+    }
+    setLoading(false)
   }
 
   const steps = ['Type', 'Profil', 'Preuves', 'Réseaux', 'Biens']
