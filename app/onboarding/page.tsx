@@ -464,7 +464,7 @@ export default function OnboardingPage() {
                   {loading ? 'Publication...' : 'Passer & Publier'}
                 </button>
                 {importMode === 'unitaire' && (
-                  <button className="btn-next" onClick={async () => { await publish(); if(agentId) await importBiens() }} disabled={loading}>
+                  <button className="btn-next" onClick={publish} disabled={loading}>
                     {loading ? '⏳...' : '🚀 Publier'}
                   </button>
                 )}
