@@ -66,7 +66,7 @@ export default async function AgentPage(props: any) {
 
         .hero{background:#fff;padding:28px 16px 22px;margin-bottom:8px}
         .hero-center{display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:22px}
-        .avatar{width:110px;height:110px;border-radius:50%;background:#E8E8E8;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#6B6B80;margin-bottom:14px;overflow:hidden;flex-shrink:0}
+        .avatar{width:130px;height:130px;border-radius:50%;background:#E8E8E8;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,0.1);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#6B6B80;margin-bottom:14px;overflow:hidden;flex-shrink:0}
         .avatar img{width:100%;height:100%;object-fit:cover}
         .h-name{font-size:24px;font-weight:700;color:#1C1C1E;letter-spacing:-0.5px;margin-bottom:5px}
         .h-sub{font-size:14px;color:#6B6B80;margin-bottom:10px}
