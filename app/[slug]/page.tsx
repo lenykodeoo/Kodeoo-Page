@@ -104,7 +104,7 @@ export default async function AgentPage(props: any) {
         .estim-input::placeholder{color:rgba(255,255,255,0.3)}
         .estim-select{width:100%;height:44px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none;cursor:pointer}
         .estim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-        .estim-btn{width:100%;height:50px;background:#1C1C1E;border:none;border-radius:8px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;margin-top:4px;transition:background 0.15s}
+        .estim-btn{width:100%;height:50px;background:#1C1C1E;border:1.5px solid rgba(255,255,255,0.6);border-radius:8px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;margin-top:4px;transition:background 0.15s}
         .estim-btn:hover{background:#F5F5F0}
 
         .avis-wrap{background:#fff;margin-bottom:8px;padding:20px 0}
@@ -125,11 +125,12 @@ export default async function AgentPage(props: any) {
         .biens-header{padding:16px 16px 12px;display:flex;justify-content:space-between;align-items:center}
         .biens-count{font-size:13px;color:#8E8E93}
         .biens-scroll{display:flex;gap:12px;overflow-x:auto;padding:0 16px 16px;scrollbar-width:none}
-        .biens-scroll::-webkit-scrollbar{display:none}
-.bien-card{background:#fff;border:1px solid #EBEBEB;border-radius:8px;min-width:200px;max-width:200px;flex-shrink:0;overflow:hidden;display:flex;flex-direction:column}        .bien-slider{position:relative;height:180px;background:#E8E8E8;overflow:hidden}
+.biens-scroll::-webkit-scrollbar{display:none}
+.bien-card{background:#fff;border:1px solid #EBEBEB;border-radius:8px;min-width:260px;max-width:260px;flex-shrink:0;overflow:hidden;display:flex;flex-direction:column}        
+.bien-slider{position:relative;height:200px;background:#F9F9F9;overflow:hidden}
         .bien-slides{display:flex;height:100%;transition:transform 0.3s ease}
         .bien-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .bien-slide img{width:100%;height:100%;object-fit:cover}
+        .bien-slide img{width:100%;height:100%;object-fit:contain}
         .bien-price-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.55));color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.3px}
         .bien-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;background:rgba(255,255,255,0.88);border:none;border-radius:50%;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
         .bien-nav-prev{left:8px}
