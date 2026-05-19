@@ -120,7 +120,7 @@ export default async function AgentPage(props: any) {
         .avis-note-sub{font-size:12px;color:#8E8E93;margin-top:3px}
         .avis-scroll{display:flex;gap:10px;overflow-x:auto;padding:0 16px 2px;scrollbar-width:none}
         .avis-scroll::-webkit-scrollbar{display:none}
-        .avis-card{background:#F7F7F5;border:1px solid #EFEFED;border-radius:8px;padding:14px;min-width:210px;max-width:210px;flex-shrink:0}
+        .avis-card{background:#F7F7F5;border:1px solid #EFEFED;border-radius:8px;padding:16px;min-width:270px;max-width:270px;flex-shrink:0}
         .avis-stars{color:#FF9500;font-size:12px;margin-bottom:8px}
         .avis-text{font-size:13px;color:#1C1C1E;line-height:1.55;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
         .avis-meta{display:flex;align-items:center;gap:7px}
