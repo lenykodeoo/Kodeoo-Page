@@ -168,21 +168,21 @@ export default async function AgentPage(props: any) {
 
         .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);backdrop-filter:blur(6px);z-index:200;display:none;align-items:flex-end;justify-content:center}
         .overlay.open{display:flex}
-        .modal{background:#F5F5F0;border-radius:20px 20px 0 0;padding:8px 0 40px;width:100%;max-width:480px;animation:su .28s cubic-bezier(.16,1,.3,1);max-height:92vh;overflow-y:auto;position:relative}
+        .modal{background:#fff;border-radius:20px 20px 0 0;padding:8px 0 40px;width:100%;max-width:480px;animation:su .28s cubic-bezier(.16,1,.3,1);max-height:92vh;overflow-y:auto;position:relative}
         @keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
         .m-handle{width:36px;height:4px;background:rgba(0,0,0,0.12);border-radius:2px;margin:12px auto 20px}
         .m-close{position:absolute;top:16px;right:16px;width:28px;height:28px;background:rgba(0,0,0,0.08);border:none;border-radius:50%;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:#6B6B80}
         .m-title{font-size:20px;font-weight:700;color:#1C1C1E;margin-bottom:4px;letter-spacing:-0.3px;padding:0 16px}
         .m-sub{font-size:14px;color:#8E8E93;margin-bottom:14px;padding:0 16px}
-        .m-section{background:#fff;border-radius:10px;margin:0 16px 10px;padding:14px}
+        .m-section{background:#F9F9F9;border-radius:10px;margin:0 16px 10px;padding:14px}
         .m-field{margin-bottom:8px}
         .m-field label{display:block;font-size:11px;font-weight:600;color:#8E8E93;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
-        .m-field input,.m-field select,.m-field textarea{width:100%;height:42px;background:#F5F5F0;border:none;border-radius:8px;padding:0 12px;font-size:14px;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
-        .m-field input:focus,.m-field select:focus,.m-field textarea:focus{background:#EBEBEB}
+        .m-field input,.m-field select,.m-field textarea{width:100%;height:42px;background:#F7F7F7;border:none;border-radius:8px;padding:0 12px;font-size:14px;color:#1C1C1E;outline:none;font-family:inherit;-webkit-appearance:none}
+        .m-field input:focus,.m-field select:focus,.m-field textarea:focus{background:#F0F0F0}
         .m-field textarea{height:72px;padding:10px 12px;resize:none;line-height:1.5}
         .m-field input::placeholder,.m-field textarea::placeholder{color:#C7C7CC}
         .radios{display:flex;gap:6px;margin-bottom:10px}
-        .radio{flex:1;height:36px;background:#F5F5F0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#8E8E93;cursor:pointer}
+        .radio{flex:1;height:36px;background:#F0F0F0;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:#8E8E93;cursor:pointer}
         .radio.on{background:#1C1C1E;color:#fff}
         .m-submit{width:calc(100% - 32px);height:50px;background:#1C1C1E;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin:4px 16px 0;display:block;font-family:inherit;transition:background 0.15s}
         .m-submit:hover{background:#2C2C2E}
