@@ -579,7 +579,7 @@ const loadAvis = async (id: string) => {
                       onChange={e => setProfil(p => ({ ...p, bio: e.target.value }))}
                     />
                   </div>
-                  <button className="btn-black" style={{marginTop:16}} onClick={saveProfil} disabled={savingProfil}>
+                  <button className="btn-black" style={{marginTop:16,width:'fit-content'}} onClick={saveProfil} disabled={savingProfil}>
                     {savingProfil ? 'Sauvegarde...' : '✓ Enregistrer'}
                   </button>
                 </div>
