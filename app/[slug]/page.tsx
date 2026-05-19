@@ -316,7 +316,7 @@ export default async function AgentPage(props: any) {
         </div>
 
        {/* AVIS */}
-        {(avisData && avisData.length > 0 || agent.google_rating) && (
+        {((avisData ?? []).length > 0 || agent.google_rating) && (
           <div className="avis-wrap">
             <div style={{padding:'0 16px',marginBottom:6}}>
               <div className="sec-label">Avis clients</div>
@@ -331,7 +331,7 @@ export default async function AgentPage(props: any) {
               </div>
             )}
             <div className="avis-scroll">
-              {avisData.map((a: any) => (
+              {(avisData ?? []).map((a: any) => (
                 <div key={a.id} className="avis-card">
                   <div className="avis-stars">{'★'.repeat(a.note || 5)}</div>
                   <div className="avis-text">&quot;{a.texte}&quot;</div>
