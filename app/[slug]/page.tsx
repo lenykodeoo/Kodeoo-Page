@@ -137,7 +137,7 @@ export default async function AgentPage(props: any) {
 .bien-slider{position:relative;height:200px;background:#E8E8E8;overflow:hidden}
         .bien-slides{display:flex;height:100%;transition:transform 0.3s ease}
         .bien-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-        .bien-slide img{width:100%;height:100%;object-fit:cover;display:block}
+        .bien-slide img{width:100%;height:100%;object-fit:contain;display:block;background:#F5F5F0}
         .bien-price-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.55));color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.3px}
         .bien-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;background:rgba(255,255,255,0.88);border:none;border-radius:50%;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
         .bien-nav-prev{left:8px}
