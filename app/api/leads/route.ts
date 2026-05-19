@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       const typeLabel = typeLabels[type] || 'Nouveau lead'
 
       await resend.emails.send({
-       from: 'Kodeoo <onboarding@resend.dev>',
+       from: 'Kodeoo <notifications@kodeoo.fr>',
         to: agent.email,
         subject: `🔔 ${typeLabel} — ${nom || 'Nouveau prospect'}`,
         html: `
