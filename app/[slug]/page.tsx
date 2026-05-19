@@ -246,13 +246,12 @@ export default async function AgentPage(props: any) {
         {/* RÉSEAUX */}
         {(agent.instagram || agent.tiktok || agent.facebook || agent.linkedin || agent.youtube || agent.site_web) && (
           <div className="socials-bar">
-            {agent.instagram && <a className="soc" href={`https://instagram.com/${agent.instagram}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-instagram" aria-hidden="true"></i></a>}
-            {agent.tiktok && <a className="soc" href={`https://tiktok.com/@${agent.tiktok}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-tiktok" aria-hidden="true"></i></a>}
-            {agent.facebook && <a className="soc" href={agent.facebook.startsWith('http') ? agent.facebook : `https://facebook.com/${agent.facebook}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-facebook" aria-hidden="true"></i></a>}
-            {agent.linkedin && <a className="soc" href={agent.linkedin.startsWith('http') ? agent.linkedin : `https://linkedin.com/in/${agent.linkedin}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-linkedin" aria-hidden="true"></i></a>}
-            {agent.youtube && <a className="soc" href={`https://youtube.com/@${agent.youtube}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-youtube" aria-hidden="true"></i></a>}
-            {agent.site_web && <a className="soc" href={agent.site_web.startsWith('http') ? agent.site_web : `https://${agent.site_web}`} target="_blank" rel="noreferrer"><i className="ti ti-world" aria-hidden="true"></i></a>}
-          </div>
+{agent.instagram && <a className="soc" href={agent.instagram.startsWith('http') ? agent.instagram : `https://instagram.com/${agent.instagram}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-instagram" aria-hidden="true"></i></a>}
+{agent.tiktok && <a className="soc" href={agent.tiktok.startsWith('http') ? agent.tiktok : `https://tiktok.com/@${agent.tiktok}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-tiktok" aria-hidden="true"></i></a>}
+{agent.facebook && <a className="soc" href={agent.facebook.startsWith('http') ? agent.facebook : `https://facebook.com/${agent.facebook}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-facebook" aria-hidden="true"></i></a>}
+{agent.linkedin && <a className="soc" href={agent.linkedin.startsWith('http') ? agent.linkedin : `https://linkedin.com/in/${agent.linkedin}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-linkedin" aria-hidden="true"></i></a>}
+{agent.youtube && <a className="soc" href={agent.youtube.startsWith('http') ? agent.youtube : `https://youtube.com/@${agent.youtube}`} target="_blank" rel="noreferrer"><i className="ti ti-brand-youtube" aria-hidden="true"></i></a>}
+{agent.site_web && <a className="soc" href={agent.site_web.startsWith('http') ? agent.site_web : `https://${agent.site_web}`} target="_blank" rel="noreferrer"><i className="ti ti-world" aria-hidden="true"></i></a>}          </div>
         )}
 
         {/* RESSOURCES */}
