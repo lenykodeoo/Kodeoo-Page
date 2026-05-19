@@ -371,16 +371,15 @@ export default function OnboardingPage() {
             <div className="sub">Ajoutez vos liens. Vous pouvez passer cette étape.</div>
             <div className="card">
               {[
-                { label: 'Instagram', prefix: 'instagram.com/', key: 'instagram', placeholder: 'votre.compte' },
-                { label: 'TikTok', prefix: 'tiktok.com/@', key: 'tiktok', placeholder: 'votre.compte' },
-                { label: 'Facebook', prefix: 'facebook.com/', key: 'facebook', placeholder: 'votre.page' },
-                { label: 'LinkedIn', prefix: 'linkedin.com/in/', key: 'linkedin', placeholder: 'votre-profil' },
-                { label: 'YouTube', prefix: 'youtube.com/@', key: 'youtube', placeholder: 'votre-chaine' },
-                { label: 'Site web', prefix: 'https://', key: 'site_web', placeholder: 'votre-site.fr' },
+                { label: 'Instagram', key: 'instagram', placeholder: 'https://instagram.com/votre.compte' },
+                { label: 'TikTok', key: 'tiktok', placeholder: 'https://tiktok.com/@votre.compte' },
+                { label: 'Facebook', key: 'facebook', placeholder: 'https://facebook.com/votre.page' },
+                { label: 'LinkedIn', key: 'linkedin', placeholder: 'https://linkedin.com/in/votre-profil' },
+                { label: 'YouTube', key: 'youtube', placeholder: 'https://youtube.com/@votre-chaine' },
+                { label: 'Site web', key: 'site_web', placeholder: 'https://votre-site.fr' },
               ].map(s => (
                 <div key={s.key} className="social-row">
                   <span className="social-label">{s.label}</span>
-                  <span className="social-prefix">{s.prefix}</span>
                   <input className="social-inp" placeholder={s.placeholder} value={(form as any)[s.key]} onChange={e => update(s.key, e.target.value)} />
                 </div>
               ))}

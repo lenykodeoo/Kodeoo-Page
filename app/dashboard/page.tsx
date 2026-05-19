@@ -33,6 +33,19 @@ export default function Dashboard() {
     experience: '',
     google_rating: '',
     bio: '',
+    prenom: '',
+    nom: '',
+    nom_agence: '',
+    reseau: '',
+    ville: '',
+    telephone: '',
+    email: '',
+    instagram: '',
+    tiktok: '',
+    facebook: '',
+    linkedin: '',
+    youtube: '',
+    site_web: '',
   })
 
   useEffect(() => {
@@ -74,8 +87,6 @@ const loadAvis = async (id: string) => {
   }
 
   const loadAgent = async (id: string) => {
-    const res = await fetch(`/api/biens?agent_id=${id}`)
-    // On récupère l'agent via Supabase directement
     const response = await fetch(`/api/agent-profil?agent_id=${id}`)
     const data = await response.json()
     if (data.success) {
@@ -85,6 +96,19 @@ const loadAvis = async (id: string) => {
         experience: data.agent.experience || '',
         google_rating: data.agent.google_rating || '',
         bio: data.agent.bio || '',
+        prenom: data.agent.prenom || '',
+        nom: data.agent.nom || '',
+        nom_agence: data.agent.type === 'agence' ? data.agent.nom : '',
+        reseau: data.agent.reseau || '',
+        ville: data.agent.ville || '',
+        telephone: data.agent.telephone || '',
+        email: data.agent.email || '',
+        instagram: data.agent.instagram || '',
+        tiktok: data.agent.tiktok || '',
+        facebook: data.agent.facebook || '',
+        linkedin: data.agent.linkedin || '',
+        youtube: data.agent.youtube || '',
+        site_web: data.agent.site_web || '',
       })
     }
   }
@@ -112,6 +136,20 @@ const loadAvis = async (id: string) => {
     await loadAgent(agentId)
     setSavingProfil(false)
     alert('✅ Profil mis à jour')
+  }
+
+  const deletePage = async () => {
+    if (!agentId) return
+    if (!confirm('Êtes-vous sûr de vouloir supprimer votre page ? Cette action est irréversible.')) return
+    await fetch('/api/agent-profil', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: agentId })
+    })
+    document.cookie = 'kodeoo_agent_id=; Max-Age=0; path=/'
+    document.cookie = 'kodeoo_slug=; Max-Age=0; path=/'
+    document.cookie = 'kodeoo_member_id=; Max-Age=0; path=/'
+    window.location.href = 'https://kodeoo.fr'
   }
 
   const addAvis = async () => {
@@ -465,6 +503,47 @@ const loadAvis = async (id: string) => {
 {/* ── PROFIL ── */}
             {tab === 'profil' && (
               <>
+              {/* Infos de base */}
+                <div className="card">
+                  <div className="card-title" style={{marginBottom:4}}>Informations de base</div>
+                  <div className="card-sub" style={{marginBottom:16}}>Modifiez vos informations principales</div>
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+                    {agent?.type !== 'agence' ? (
+                      <>
+                        <div>
+                          <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Prénom</label>
+                          <input className="inp" value={profil.prenom} onChange={e => setProfil(p => ({ ...p, prenom: e.target.value }))} placeholder="Sophie" />
+                        </div>
+                        <div>
+                          <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Nom</label>
+                          <input className="inp" value={profil.nom} onChange={e => setProfil(p => ({ ...p, nom: e.target.value }))} placeholder="Martin" />
+                        </div>
+                        <div style={{gridColumn:'1/-1'}}>
+                          <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Réseau ou Agence</label>
+                          <input className="inp" value={profil.reseau} onChange={e => setProfil(p => ({ ...p, reseau: e.target.value }))} placeholder="IAD France, Safti..." />
+                        </div>
+                      </>
+                    ) : (
+                      <div style={{gridColumn:'1/-1'}}>
+                        <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Nom de l'agence</label>
+                        <input className="inp" value={profil.nom_agence} onChange={e => setProfil(p => ({ ...p, nom_agence: e.target.value }))} placeholder="Agence Dupont" />
+                      </div>
+                    )}
+                    <div>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Ville</label>
+                      <input className="inp" value={profil.ville} onChange={e => setProfil(p => ({ ...p, ville: e.target.value }))} placeholder="Lyon" />
+                    </div>
+                    <div>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Téléphone</label>
+                      <input className="inp" value={profil.telephone} onChange={e => setProfil(p => ({ ...p, telephone: e.target.value }))} placeholder="06 00 00 00 00" />
+                    </div>
+                    <div style={{gridColumn:'1/-1'}}>
+                      <label style={{display:'block',fontSize:11,fontWeight:600,color:'#8E8E93',textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:5}}>Email</label>
+                      <input className="inp" type="email" value={profil.email} onChange={e => setProfil(p => ({ ...p, email: e.target.value }))} placeholder="vous@exemple.fr" />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Photo de profil */}
                 <div className="card two-col" style={{alignItems:'start'}}>
                   <div>
@@ -499,6 +578,30 @@ const loadAvis = async (id: string) => {
                   </div>
                 </div>
 
+{/* Réseaux sociaux */}
+                <div className="card">
+                  <div className="card-title" style={{marginBottom:4}}>Réseaux sociaux</div>
+                  <div className="card-sub" style={{marginBottom:16}}>Collez vos liens complets</div>
+                  <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:16}}>
+                    {[
+                      { label: 'Instagram', key: 'instagram', placeholder: 'https://instagram.com/votre.compte' },
+                      { label: 'TikTok', key: 'tiktok', placeholder: 'https://tiktok.com/@votre.compte' },
+                      { label: 'Facebook', key: 'facebook', placeholder: 'https://facebook.com/votre.page' },
+                      { label: 'LinkedIn', key: 'linkedin', placeholder: 'https://linkedin.com/in/votre-profil' },
+                      { label: 'YouTube', key: 'youtube', placeholder: 'https://youtube.com/@votre-chaine' },
+                      { label: 'Site web', key: 'site_web', placeholder: 'https://votre-site.fr' },
+                    ].map(s => (
+                      <div key={s.key} style={{display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{fontSize:13,fontWeight:500,color:'#1C1C1E',minWidth:80}}>{s.label}</span>
+                        <input className="inp" style={{flex:1}} placeholder={s.placeholder} value={(profil as any)[s.key]} onChange={e => setProfil(p => ({ ...p, [s.key]: e.target.value }))} />
+                      </div>
+                    ))}
+                  </div>
+                  <button className="btn-black" onClick={saveProfil} disabled={savingProfil}>
+                    {savingProfil ? 'Sauvegarde...' : '✓ Enregistrer'}
+                  </button>
+                </div>
+                
                 {/* Preuves sociales */}
                 <div className="card">
                   <div className="card-title" style={{marginBottom:4}}>Preuves sociales</div>
@@ -587,9 +690,17 @@ const loadAvis = async (id: string) => {
                     </div>
                   )}
                 </div>
+                {/* Zone danger */}
+                <div className="card" style={{borderColor:'#FECACA'}}>
+                  <div className="card-title" style={{color:'#EF4444',marginBottom:4}}>Zone de danger</div>
+                  <div className="card-sub" style={{marginBottom:16}}>La suppression de votre page est irréversible. Tous vos biens, leads et ressources seront supprimés.</div>
+                  <button onClick={deletePage} style={{height:40,padding:'0 16px',background:'#FEF2F2',color:'#EF4444',border:'1.5px solid #FECACA',borderRadius:8,fontFamily:'inherit',fontSize:13,fontWeight:600,cursor:'pointer'}}>
+                    Supprimer ma page
+                  </button>
+                </div>
               </>
             )}
-            
+
             {/* ── BIENS ── */}
             {tab === 'biens' && (
               <>
