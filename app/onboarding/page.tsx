@@ -30,21 +30,48 @@ export default function OnboardingPage() {
   }
 
   const submit = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, kodeoo_member_id: 'member_' + Date.now() })
-      })
-      const data = await res.json()
-      if (data.success) setStep(4)
-      else alert('Erreur : ' + data.error)
-    } catch (e) {
-      alert('Erreur réseau')
+  setLoading(true)
+  try {
+    // Récupère le member_id depuis le cookie
+    const getCookie = (name: string) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
+      return match ? match[2] : null
     }
-    setLoading(false)
+    const memberId = getCookie('kodeoo_member_id') || 'member_' + Date.now()
+
+    const res = await fetch('/api/agent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...form, kodeoo_member_id: memberId })
+    })
+    const data = await res.json()
+
+    if (data.success) {
+      // Sauvegarder le slug dans WordPress
+      const secret = 'kodeoo-secret-2026'
+      const token = btoa(memberId + ':' + secret).slice(0, 32)
+
+      await fetch('https://kodeoo.fr/wp-admin/admin-ajax.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          action: 'kodeoo_save_slug',
+          member_id: memberId,
+          slug: data.agent.slug,
+          token: token,
+        })
+      })
+
+      setSlug(data.agent.slug)
+      setStep(4)
+    } else {
+      alert('Erreur : ' + data.error)
+    }
+  } catch (e) {
+    alert('Erreur réseau')
   }
+  setLoading(false)
+}
 
   return (
     <>
