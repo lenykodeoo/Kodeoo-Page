@@ -56,18 +56,18 @@ export default async function AgentPage(props: any) {
   const biensJson = JSON.stringify(
     (biens || []).map((b: any) => ({
       id: b.id,
-      titre: b.titre || '',
+      titre: (b.titre || '').replace(/'/g, "\\'").replace(/`/g, '\\`'),
       prix: b.prix,
       surface: b.surface,
       pieces: b.pieces,
       chambres: b.chambres,
       ville: b.ville || '',
-      description: (b.description || '').substring(0, 300).replace(/</g, '&lt;').replace(/>/g, '&gt;'),
+      description: '',
       photos: b.photos || [],
       dpe: b.dpe,
       statut: b.statut,
     }))
-  ).replace(/<\/script>/gi, '<\\/script>')
+  ).replace(/<\/script>/gi, '<\\/script>').replace(/`/g, '\\`')
 
   return (
     <>
