@@ -438,8 +438,12 @@ export default async function AgentPage(props: any) {
         <div className="footer">
           <a className="foot-link" href="https://kodeoo.fr">
             <span className="k-dot">K</span>
-            Propulsé par Kodeoo
+            <span className="foot-l">Propulsé par Kodeoo</span>
           </a>
+          <div style={{marginTop:10,display:'flex',gap:16,justifyContent:'center'}}>
+            <a href="/mentions-legales" style={{fontSize:11,color:'#C7C7CC',textDecoration:'none'}}>Mentions légales</a>
+            <a href="/politique-confidentialite" style={{fontSize:11,color:'#C7C7CC',textDecoration:'none'}}>Confidentialité</a>
+          </div>
         </div>
 
         {/* MODAL CONTACT */}
@@ -463,6 +467,9 @@ export default async function AgentPage(props: any) {
               <div className="m-field"><label>Téléphone</label><input type="tel" id="cTel" placeholder="06 00 00 00 00"/></div>
               <div className="m-field"><label>Votre projet</label><textarea id="cMsg" placeholder="Décrivez votre projet…"></textarea></div>
             </div>
+            <div style={{fontSize:11,color:'#C7C7CC',lineHeight:1.5,padding:'0 16px',marginBottom:8}}>
+              En envoyant ce formulaire, vous acceptez que vos données soient transmises à {displayName} conformément à notre <a href="/politique-confidentialite" style={{color:'#C7C7CC'}}>politique de confidentialité</a>.
+            </div>
             <button className="m-submit" id="submitContact">Envoyer →</button>
           </div>
         </div>
@@ -482,6 +489,9 @@ export default async function AgentPage(props: any) {
               <div className="m-field"><label>Surface (m²)</label><input type="number" id="eSurface" placeholder="75"/></div>
               <div className="m-field"><label>Téléphone</label><input type="tel" id="eTel" placeholder="06 00 00 00 00"/></div>
               <div className="m-field"><label>Email</label><input type="email" id="eEmail" placeholder="jean@exemple.fr"/></div>
+            </div>
+            <div style={{fontSize:11,color:'#C7C7CC',lineHeight:1.5,padding:'0 16px',marginBottom:8}}>
+              En envoyant ce formulaire, vous acceptez que vos données soient transmises à {displayName} conformément à notre <a href="/politique-confidentialite" style={{color:'#C7C7CC'}}>politique de confidentialité</a>.
             </div>
             <button className="m-submit" id="submitEstim">Recevoir mon estimation →</button>
           </div>
