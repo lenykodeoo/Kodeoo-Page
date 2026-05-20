@@ -637,9 +637,7 @@ export default async function AgentPage(props: any) {
             });
           });
 
-          document.querySelectorAll('.bien-cta').forEach(function(btn) {
-            btn.addEventListener('click', function() { openM('contact'); });
-          });
+    
 
           // Slider biens
           var sliderPos = {};
