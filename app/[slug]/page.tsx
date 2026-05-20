@@ -533,8 +533,13 @@ export default async function AgentPage(props: any) {
       if (bien.dpe) pills += '<span class="pill">DPE ' + bien.dpe + '</span>';
       var prixStr = bien.prix ? Number(bien.prix).toLocaleString('fr-FR') + ' \u20ac' : 'Prix sur demande';
       var desc = bien.description || '';
+      function decodeHtmlModal(str) {
+        var txt = document.createElement('textarea');
+        txt.innerHTML = str;
+        return txt.value;
+      }
       content.innerHTML = imgHtml
-        + '<div class="bien-modal-title">' + (bien.titre || '') + '</div>'
+        + '<div class="bien-modal-title">' + decodeHtmlModal(bien.titre || '') + '</div>'
         + '<div class="bien-modal-price">' + prixStr + '</div>'
         + '<div class="bien-modal-pills">' + pills + '</div>'
         + (desc ? '<div class="bien-modal-desc">' + desc + '</div>' : '')
