@@ -66,11 +66,31 @@ export async function DELETE(req: NextRequest) {
     const { agent_id } = await req.json()
     if (!agent_id) return NextResponse.json({ error: 'agent_id requis' }, { status: 400 })
 
+    // Récupérer le kodeoo_member_id avant suppression
+    const { data: agent } = await supabaseAdmin
+      .from('agents')
+      .select('kodeoo_member_id')
+      .eq('id', agent_id)
+      .single()
+
     await supabaseAdmin.from('biens').delete().eq('agent_id', agent_id)
     await supabaseAdmin.from('leads').delete().eq('agent_id', agent_id)
     await supabaseAdmin.from('ressources').delete().eq('agent_id', agent_id)
     await supabaseAdmin.from('avis').delete().eq('agent_id', agent_id)
-    await supabaseAdmin.from('agents').update({ is_active: false }).eq('id', agent_id)
+    await supabaseAdmin.from('page_views').delete().eq('agent_id', agent_id)
+    await supabaseAdmin.from('agents').delete().eq('id', agent_id)
+
+    // Supprimer le slug dans WordPress
+    if (agent?.kodeoo_member_id) {
+      await fetch('https://kodeoo.fr/wp-json/kodeoo/v1/delete-slug', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          secret: 'kodeoo-webhook-secret-2026',
+          member_id: agent.kodeoo_member_id,
+        })
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
