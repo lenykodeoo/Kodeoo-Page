@@ -540,7 +540,7 @@ export default async function AgentPage(props: any) {
         (function() {
           var AGENT_ID = '${agentId}';
           window._biens = ${JSON.stringify(biens || [])};
-          window._agentName = '${displayName}';
+          window._agentName = ${JSON.stringify(displayName)};
 
           function openM(id) {
             var el = document.getElementById('m-' + id);
@@ -637,7 +637,7 @@ export default async function AgentPage(props: any) {
             });
           });
 
-    
+          
 
           // Slider biens
           var sliderPos = {};
