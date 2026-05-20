@@ -8,17 +8,14 @@ export async function POST(req: NextRequest) {
     const event = body.type || ''
     const data = body.data?.object || body
 
-    // Récupérer l'email du customer
     const customerEmail = 
       data.customer?.email || 
       data.email || 
       body.customer?.email ||
       null
 
-    console.log('Webhook SureCart reçu:', event, 'email:', customerEmail)
-
     if (!customerEmail) {
-      return NextResponse.json({ success: true, message: 'Pas d\'email trouvé dans le payload' })
+      return NextResponse.json({ success: true, message: 'Pas d\'email trouvé' })
     }
 
     const { data: agent } = await supabaseAdmin
@@ -36,15 +33,9 @@ export async function POST(req: NextRequest) {
       .update({ is_active: false })
       .eq('id', agent.id)
 
-    console.log('Page désactivée:', agent.slug)
-
-    return NextResponse.json({ 
-      success: true, 
-      message: `Page ${agent.slug} désactivée` 
-    })
+    return NextResponse.json({ success: true, message: `Page ${agent.slug} désactivée` })
 
   } catch (error: any) {
-    console.error('Webhook error:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
