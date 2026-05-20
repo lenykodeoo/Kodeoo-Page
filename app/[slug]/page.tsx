@@ -56,7 +56,7 @@ export default async function AgentPage(props: any) {
  const biensEncoded = Buffer.from(JSON.stringify(
     (biens || []).map((b: any) => ({
       id: b.id,
-      titre: b.titre || '',
+      titre: (b.titre || '').replace(/Ã¨/g, 'è').replace(/Ã©/g, 'é').replace(/Ã /g, 'à').replace(/Ã§/g, 'ç').replace(/Ã´/g, 'ô').replace(/Ã»/g, 'û').replace(/Ã®/g, 'î').replace(/Ã«/g, 'ë').replace(/â€™/g, "'").replace(/â€"/g, '–').replace(/â€œ/g, '"').replace(/â€/g, '"'),
       prix: b.prix,
       surface: b.surface,
       pieces: b.pieces,
