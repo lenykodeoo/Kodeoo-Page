@@ -1,6 +1,25 @@
 import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 
+function decodeHtml(str: string): string {
+  if (!str) return ''
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&egrave;/g, 'è')
+    .replace(/&eacute;/g, 'é')
+    .replace(/&agrave;/g, 'à')
+    .replace(/&ccedil;/g, 'ç')
+    .replace(/&ocirc;/g, 'ô')
+    .replace(/&ucirc;/g, 'û')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 const LEAD_MAGNETS: Record<string, { titre: string; description: string; icone: string }> = {
   guide_vendeur: {
     titre: 'Guide vendeur 2026',
@@ -390,7 +409,7 @@ export default async function AgentPage(props: any) {
                   </div>
                   <div className="bien-body">
                     <div className="bien-loc">{bien.ville}{bien.quartier ? ` · ${bien.quartier}` : ''}</div>
-                    <div className="bien-title">{bien.titre}</div>
+                    <div className="bien-title">{decodeHtml(bien.titre)}</div>
                     <div className="bien-pills">
                       {bien.surface && <span className="pill">{bien.surface} m²</span>}
                       {bien.pieces && <span className="pill">{bien.pieces} p.</span>}
