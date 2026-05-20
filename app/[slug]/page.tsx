@@ -197,6 +197,13 @@ export default async function AgentPage(props: any) {
         .fc-sec{height:46px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:8px;font-size:14px;font-weight:500;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-family:inherit;transition:background 0.15s}
         .fc-sec:hover{background:rgba(255,255,255,0.14)}
 
+        .bien-modal-img{width:100%;height:220px;object-fit:cover;border-radius:10px;margin-bottom:14px}
+.bien-modal-title{font-size:18px;font-weight:700;color:#1C1C1E;margin-bottom:6px;letter-spacing:-0.3px;padding:0 16px}
+.bien-modal-price{font-size:22px;font-weight:700;color:#1C1C1E;margin-bottom:12px;letter-spacing:-0.5px;padding:0 16px}
+.bien-modal-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding:0 16px}
+.bien-modal-desc{font-size:13px;color:#6B6B80;line-height:1.65;margin-bottom:16px;padding:0 16px}
+.bien-modal-sep{height:1px;background:#F0F0F0;margin:14px 16px}
+
         .footer{padding:16px;text-align:center;background:#F5F5F0}
         .foot-link{font-size:12px;color:#8E8E93;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
 
@@ -415,7 +422,7 @@ export default async function AgentPage(props: any) {
                       {bien.pieces && <span className="pill">{bien.pieces} p.</span>}
                       {bien.chambres && <span className="pill">{bien.chambres} ch.</span>}
                     </div>
-                    <button className="bien-cta" data-modal="contact">
+                    <button className="bien-cta" data-idx={idx}>
                       Voir le bien <i className="ti ti-arrow-right" aria-hidden="true"></i>
                     </button>
                   </div>
@@ -516,6 +523,15 @@ export default async function AgentPage(props: any) {
           </div>
         </div>
 
+{/* MODAL BIEN */}
+        <div className="overlay" id="m-bien">
+          <div className="modal" style={{position:'relative'}}>
+            <div className="m-handle"></div>
+            <button className="m-close" id="closeBien">×</button>
+            <div id="bien-modal-content"></div>
+          </div>
+        </div>
+
       </div>
 
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
@@ -523,6 +539,8 @@ export default async function AgentPage(props: any) {
       <script dangerouslySetInnerHTML={{__html: `
         (function() {
           var AGENT_ID = '${agentId}';
+          window._biens = ${JSON.stringify(biens || [])};
+          window._agentName = '${displayName}';
 
           function openM(id) {
             var el = document.getElementById('m-' + id);
@@ -545,6 +563,73 @@ export default async function AgentPage(props: any) {
           document.getElementById('heroMsgBtn')?.addEventListener('click', function() { openM('contact'); });
           document.getElementById('footerEstimBtn')?.addEventListener('click', function() { openM('estimation'); });
           document.getElementById('footerMsgBtn')?.addEventListener('click', function() { openM('contact'); });
+
+          document.getElementById('closeBien')?.addEventListener('click', function() { closeM('bien'); });
+
+          window.submitBienLead = async function(bienId, bienTitre) {
+            var nom = document.getElementById('bm-nom')?.value || '';
+            var email = document.getElementById('bm-email')?.value || '';
+            var tel = document.getElementById('bm-tel')?.value || '';
+            if (!email) { alert('Veuillez renseigner votre email'); return; }
+            try {
+              await fetch('/api/leads', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  agent_id: AGENT_ID,
+                  type: 'contact',
+                  nom: nom,
+                  email: email,
+                  telephone: tel,
+                  message: 'Intéressé par le bien : ' + bienTitre
+                })
+              });
+              closeM('bien');
+              alert('✅ Votre demande a bien été envoyée !');
+            } catch(e) { alert('Erreur réseau'); }
+          }
+
+          // Ouvrir modal bien
+          document.querySelectorAll('.bien-cta').forEach(function(btn) {
+            btn.removeEventListener('click', function() {});
+            btn.addEventListener('click', function() {
+              var idx = btn.getAttribute('data-idx');
+              var biens = window._biens || [];
+              var bien = biens[parseInt(idx)];
+              if (!bien) { openM('contact'); return; }
+
+              var content = document.getElementById('bien-modal-content');
+              if (!content) return;
+
+              var photos = bien.photos || [];
+              var imgHtml = photos.length > 0
+                ? '<img src="' + photos[0] + '" class="bien-modal-img" />'
+                : '<div style="height:160px;background:#F0F0F0;border-radius:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:40px">🏠</div>';
+
+              var pills = '';
+              if (bien.surface) pills += '<span class="pill">' + bien.surface + ' m²</span>';
+              if (bien.pieces) pills += '<span class="pill">' + bien.pieces + ' p.</span>';
+              if (bien.chambres) pills += '<span class="pill">' + bien.chambres + ' ch.</span>';
+              if (bien.dpe) pills += '<span class="pill">DPE ' + bien.dpe + '</span>';
+
+              content.innerHTML = imgHtml +
+                '<div class="bien-modal-title">' + (bien.titre || '') + '</div>' +
+                '<div class="bien-modal-price">' + (bien.prix ? bien.prix.toLocaleString('fr-FR') + ' €' : 'Prix sur demande') + '</div>' +
+                '<div class="bien-modal-pills">' + pills + '</div>' +
+                (bien.description ? '<div class="bien-modal-desc">' + bien.description.substring(0, 300) + (bien.description.length > 300 ? '...' : '') + '</div>' : '') +
+                '<div class="bien-modal-sep"></div>' +
+                '<div style="padding:0 16px 8px;font-size:13px;font-weight:600;color:#1C1C1E">Intéressé par ce bien ?</div>' +
+                '<div style="padding:0 16px 8px;font-size:12px;color:#8E8E93">Contactez ' + (window._agentName || "l'agent") + ' directement.</div>' +
+                '<div style="padding:0 16px">' +
+                '<div style="margin-bottom:8px"><input id="bm-nom" class="estim-input" style="background:#F9F9F9;border:1px solid #E8E8E8;color:#1C1C1E;margin-bottom:8px" placeholder="Votre prénom & nom" />' +
+                '<input id="bm-email" class="estim-input" style="background:#F9F9F9;border:1px solid #E8E8E8;color:#1C1C1E;margin-bottom:8px" type="email" placeholder="Votre email" />' +
+                '<input id="bm-tel" class="estim-input" style="background:#F9F9F9;border:1px solid #E8E8E8;color:#1C1C1E;margin-bottom:12px" type="tel" placeholder="Votre téléphone" /></div>' +
+                '<button onclick="submitBienLead(\'' + bien.id + '\', \'' + (bien.titre||'').replace(/'/g,"\\'") + '\')" style="width:100%;height:48px;background:#1C1C1E;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Je suis intéressé →</button>' +
+                '</div>';
+
+              openM('bien');
+            });
+          });
 
           document.querySelectorAll('.radio').forEach(function(r) {
             r.addEventListener('click', function() {
