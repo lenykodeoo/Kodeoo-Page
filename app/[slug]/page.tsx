@@ -53,10 +53,10 @@ export default async function AgentPage(props: any) {
   const agentId = agent.id
 
   // Sérialisation sécurisée des biens pour le JS
-  const biensJson = JSON.stringify(
+ const biensEncoded = Buffer.from(JSON.stringify(
     (biens || []).map((b: any) => ({
       id: b.id,
-      titre: (b.titre || '').replace(/'/g, "\\'").replace(/`/g, '\\`'),
+      titre: b.titre || '',
       prix: b.prix,
       surface: b.surface,
       pieces: b.pieces,
@@ -67,7 +67,7 @@ export default async function AgentPage(props: any) {
       dpe: b.dpe,
       statut: b.statut,
     }))
-  ).replace(/<\/script>/gi, '<\\/script>').replace(/`/g, '\\`')
+  )).toString('base64')
 
   return (
     <>
@@ -467,7 +467,7 @@ export default async function AgentPage(props: any) {
       <script dangerouslySetInnerHTML={{__html: `
 (function() {
   var AGENT_ID = '${agentId}';
-  var BIENS_DATA = ${biensJson};
+  var BIENS_DATA = JSON.parse(atob('${biensEncoded}'));
 
   function openM(id) {
     var el = document.getElementById('m-' + id);
