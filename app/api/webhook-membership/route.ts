@@ -1,31 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+const WEBHOOK_SECRET = 'kodeoo-webhook-secret-2026'
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    const event = body.type || ''
-    const data = body.data?.object || body
+    // Vérifier le secret
+    if (body.secret !== WEBHOOK_SECRET) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 401 })
+    }
 
-    const customerEmail = 
-      data.customer?.email || 
-      data.email || 
-      body.customer?.email ||
-      null
+    const memberId = body.member_id || null
 
-    if (!customerEmail) {
-      return NextResponse.json({ success: true, message: 'Pas d\'email trouvé' })
+    if (!memberId) {
+      return NextResponse.json({ success: true, message: 'Pas de member_id trouvé' })
     }
 
     const { data: agent } = await supabaseAdmin
       .from('agents')
       .select('id, slug')
-      .eq('email', customerEmail)
+      .eq('kodeoo_member_id', String(memberId))
       .single()
 
     if (!agent) {
-      return NextResponse.json({ success: true, message: 'Aucune page trouvée pour ' + customerEmail })
+      return NextResponse.json({ success: true, message: 'Aucune page trouvée pour member_id ' + memberId })
     }
 
     await supabaseAdmin
