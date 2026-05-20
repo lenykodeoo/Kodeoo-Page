@@ -524,7 +524,7 @@ export default async function AgentPage(props: any) {
       if (!content) return;
       var photos = bien.photos || [];
       var imgHtml = photos.length > 0
-        ? '<img src="' + photos[0] + '" class="bien-modal-img" onerror="this.style.display=\'none\'" />'
+        ? '<img src="' + photos[0] + '" class="bien-modal-img" onerror="this.style.display=&quot;none&quot;" />'
         : '<div style="height:160px;background:#F0F0F0;border-radius:10px;margin-bottom:14px;display:flex;align-items:center;justify-content:center;font-size:40px">🏠</div>';
       var pills = '';
       if (bien.surface) pills += '<span class="pill">' + bien.surface + ' m\u00b2</span>';
