@@ -591,7 +591,6 @@ export default async function AgentPage(props: any) {
 
           // Ouvrir modal bien
           document.querySelectorAll('.bien-cta').forEach(function(btn) {
-            btn.removeEventListener('click', function() {});
             btn.addEventListener('click', function() {
               var idx = btn.getAttribute('data-idx');
               var biens = window._biens || [];
