@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Depuis le breadcrumb HTML
     if (!ville) {
-      const breadcrumbMatch = html.match(/(?:breadcrumb|fil-ariane)[^>]*>.*?<[^>]+>([^<]{3,30})<\/[^>]+>.*?<[^>]+>([^<]{3,30})<\/[^>]+>/is)
+      const breadcrumbMatch = html.match(/(?:breadcrumb|fil-ariane)[^>]*>[\s\S]*?<[^>]+>([^<]{3,30})<\/[^>]+>[\s\S]*?<[^>]+>([^<]{3,30})<\/[^>]+>/i)
       if (breadcrumbMatch) {
         const candidate = breadcrumbMatch[2].trim()
         if (candidate && !/accueil|home|acheter|vendre|louer/i.test(candidate)) {
