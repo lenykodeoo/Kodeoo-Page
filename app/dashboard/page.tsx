@@ -537,7 +537,7 @@ const loadAvis = async (id: string) => {
                 },
                 {
                   id: 'partage',
-                  done: false,
+                  done: steps.slice(0, 7).every(s => s.done),
                   titre: '📲 Lien partagé',
                   desc: 'Copiez votre lien Kodeoo Link et mettez-le dans la bio de tous vos réseaux sociaux (Instagram, Facebook, LinkedIn). C\'est votre lien unique qui capte tous vos prospects.'
                 },
