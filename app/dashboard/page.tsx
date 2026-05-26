@@ -560,8 +560,8 @@ const loadAvis = async (id: string) => {
                         </span>
                         <span style={{fontSize:11,color:'#8E8E93'}}>{done}/{total} étapes</span>
                       </div>
-                      <div style={{height:6,background:'#F0F0F0',borderRadius:3,overflow:'hidden'}}>
-                        <div style={{height:'100%',width:`${pct}%`,background: pct === 100 ? '#34C759' : '#1C1C1E',borderRadius:3,transition:'width 0.3s'}}></div>
+                      <div style={{height:6,background:'#E8E8E8',borderRadius:3,overflow:'hidden'}}>
+                        <div style={{height:'100%',width:`${pct}%`,background: pct === 100 ? '#34C759' : 'linear-gradient(90deg, #1C1C1E 0%, #6366F1 100%)',borderRadius:3,transition:'width 0.3s'}}></div>
                       </div>
                     </div>
                     <span style={{fontSize:12,color:'#8E8E93',flexShrink:0}}>{checklistOpen ? '▲ Réduire' : '▼ Voir les étapes'}</span>
