@@ -492,7 +492,7 @@ const loadAvis = async (id: string) => {
 
 {/* CHECKLIST ONBOARDING */}
             {agent && (() => {
-              const steps = [
+              const stepsBase = [
                 {
                   id: 'page',
                   done: true,
@@ -535,9 +535,13 @@ const loadAvis = async (id: string) => {
                   titre: '⭐ Avis clients',
                   desc: 'Ajoutez vos meilleurs témoignages dans Mon profil → Avis clients. Demandez à vos anciens clients de vous laisser un texte court que vous saisissez manuellement. Les avis sont un facteur clé de conversion.'
                 },
+              ]
+              const allDone = stepsBase.every(s => s.done)
+              const steps = [
+                ...stepsBase,
                 {
                   id: 'partage',
-                  done: steps.slice(0, 7).every(s => s.done),
+                  done: allDone,
                   titre: '📲 Lien partagé',
                   desc: 'Copiez votre lien Kodeoo Link et mettez-le dans la bio de tous vos réseaux sociaux (Instagram, Facebook, LinkedIn). C\'est votre lien unique qui capte tous vos prospects.'
                 },
