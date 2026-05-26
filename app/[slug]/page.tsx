@@ -539,9 +539,8 @@ export default async function AgentPage(props: any) {
         txt.innerHTML = str;
         return txt.value;
       }
-      content.innerHTML = imgHtml
-        + '<div class="bien-modal-title">' + decodeHtmlModal(bien.titre || '') + '</div>'
-        + '<div class="bien-modal-price">' + prixStr + '</div>'
+     content.innerHTML = imgHtml
+                + '<div class="bien-modal-price">' + prixStr + '</div>'
         + '<div class="bien-modal-pills">' + pills + '</div>'
         + (desc ? '<div class="bien-modal-desc">' + desc + '</div>' : '')
         + '<div class="bien-modal-sep"></div>'
