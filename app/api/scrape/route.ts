@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     const pieces = piecesMatch ? parseInt(piecesMatch[1]) : null
 
     // Chambres
-    const chambresMatch = fullText.match(/(\d+)\s*chambre/i)
+    const chambresMatch = fullText.match(/(\d+)\s*chambre/i) || fullText.match(/chambre[^:]*:\s*(\d+)/i)
     const chambres = chambresMatch ? parseInt(chambresMatch[1]) : null
 
     // DPE
@@ -104,9 +104,12 @@ export async function POST(req: NextRequest) {
 
     // 1. Depuis le titre : "À vendre Maison Golfe-Juan 375 m²" → "Golfe-Juan"
     // Pattern : mot(s) capitalisés après "vente|vendre|louer|location|maison|appartement|villa|studio"
-    const villeTitreMatch = titre.match(/(?:vente|vendre|louer|location|maison|appartement|villa|studio|loft)\s+([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ\s-]{2,30?})\s+\d/i)
+    const villeTitreMatch = titre.match(/(?:vente|vendre|louer|location)\s+(?:maison|appartement|villa|studio|loft|terrain)?\s*([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ\s-]{2,25?})\s+\d/i)
+      || titre.match(/(?:maison|appartement|villa|studio|loft)\s+([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ-]{2,25})\s+\d/i)
     if (villeTitreMatch) {
       ville = villeTitreMatch[1].trim()
+      // Supprimer le type de bien s'il est inclus dans la ville
+      ville = ville.replace(/^(maison|appartement|villa|studio|loft)\s+/i, '').trim()
     }
 
     // 2. Depuis l'URL : /a-vendre-maison-golfe-juan-375-m → "Golfe-Juan"
