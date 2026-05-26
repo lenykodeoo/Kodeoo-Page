@@ -58,10 +58,20 @@ export async function POST(req: NextRequest) {
     const ogDesc = getMeta('og:description') || getMetaName('description')
     const ogImage = getMeta('og:image')
 
-    // Nettoyer le titre
-    let titre = rawTitle || ogTitle
-    titre = titre.replace(/\s*[-|–]\s*(SeLoger|Leboncoin|PAP|Logic|BienIci|Figaro Immo|LeFigaro).*/i, '').trim()
+// Nettoyer le titre
+    const fixEncoding = (str: string): string => {
+      return str
+        .replace(/Ã©/g, 'é').replace(/Ã¨/g, 'è').replace(/Ã /g, 'à')
+        .replace(/Ã§/g, 'ç').replace(/Ã´/g, 'ô').replace(/Ã»/g, 'û')
+        .replace(/Ã®/g, 'î').replace(/Ã¢/g, 'â').replace(/Ã«/g, 'ë')
+        .replace(/Ã\u00a0/g, 'à').replace(/Â²/g, '²').replace(/â¬/g, '€')
+        .replace(/Â°/g, '°').replace(/Â«/g, '«').replace(/Â»/g, '»')
+        .replace(/â€™/g, "'").replace(/â€"/g, '–').replace(/â€œ/g, '"')
+        .replace(/Ã\b/g, 'À').replace(/Â /g, ' ').trim()
+    }
 
+    let titre = fixEncoding(rawTitle || ogTitle)
+    titre = titre.replace(/\s*[-|–]\s*(SeLoger|Leboncoin|PAP|Logic|BienIci|Figaro Immo|LeFigaro).*/i, '').trim()
     const fullText = titre + ' ' + ogDesc + ' ' + html.slice(0, 50000)
 
     // Prix — chercher le plus gros nombre avec € dans le titre ou contenu
