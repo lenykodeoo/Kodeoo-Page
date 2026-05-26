@@ -111,7 +111,9 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-  export async function PATCH(req: NextRequest) {
+}
+
+export async function PATCH(req: NextRequest) {
   try {
     const { lead_id, is_read } = await req.json()
     if (!lead_id) return NextResponse.json({ error: 'lead_id requis' }, { status: 400 })
