@@ -25,6 +25,7 @@ export default function Dashboard() {
   const [views, setViews] = useState({ today: 0, month: 0, total: 0 })
   const [avis, setAvis] = useState<any[]>([])
   const [mobileNav, setMobileNav] = useState(false)
+  const [checklistOpen, setChecklistOpen] = useState(false)
   const [agent, setAgent] = useState<any>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [savingProfil, setSavingProfil] = useState(false)
@@ -488,6 +489,104 @@ const loadAvis = async (id: string) => {
           </div>
 
           <div className="main-content">
+
+{/* CHECKLIST ONBOARDING */}
+            {agent && (() => {
+              const steps = [
+                {
+                  id: 'page',
+                  done: true,
+                  titre: '🎉 Page créée',
+                  desc: 'Votre Kodeoo Link est en ligne et prêt à être partagé.'
+                },
+                {
+                  id: 'photo',
+                  done: !!agent.photo_url,
+                  titre: '📷 Photo de profil',
+                  desc: 'Ajoutez une photo professionnelle dans Mon profil → Photo de profil. Une vraie photo inspire confiance et augmente les prises de contact.'
+                },
+                {
+                  id: 'bio',
+                  done: !!agent.bio,
+                  titre: '✍️ Bio complétée',
+                  desc: 'Rédigez votre présentation dans Mon profil → Bio. Expliquez votre secteur, votre spécialité, ce qui vous différencie. 2-3 phrases suffisent.'
+                },
+                {
+                  id: 'preuves',
+                  done: !!(agent.biens_vendus || agent.experience || agent.google_rating),
+                  titre: '🏆 Preuves sociales',
+                  desc: 'Renseignez vos chiffres clés dans Mon profil → Preuves sociales : note Google, nombre de biens vendus, années d\'expérience. Ces chiffres rassurent vos prospects.'
+                },
+                {
+                  id: 'biens',
+                  done: biens.length > 0,
+                  titre: '🏠 Biens importés',
+                  desc: 'Importez vos annonces dans Mes biens → Import en masse. Collez l\'URL de votre page sur IAD, Safti ou votre site d\'agence. Vos biens s\'affichent automatiquement sur votre page.'
+                },
+                {
+                  id: 'ressource',
+                  done: ressources.some((r: any) => r.actif),
+                  titre: '📄 Lead magnet activé',
+                  desc: 'Dans Ressources → téléchargez le PDF depuis votre espace Kodeoo Club → modifiez-le avec vos informations → exportez en PDF → uploadez-le ici → activez le toggle. Vos prospects laissent leur email pour le recevoir et vous recevrez le lead directement par mail et dans votre dashboard.'
+                },
+                {
+                  id: 'avis',
+                  done: avis.length > 0,
+                  titre: '⭐ Avis clients',
+                  desc: 'Ajoutez vos meilleurs témoignages dans Mon profil → Avis clients. Demandez à vos anciens clients de vous laisser un texte court que vous saisissez manuellement. Les avis sont un facteur clé de conversion.'
+                },
+                {
+                  id: 'partage',
+                  done: false,
+                  titre: '📲 Lien partagé',
+                  desc: 'Copiez votre lien Kodeoo Link et mettez-le dans la bio de tous vos réseaux sociaux (Instagram, Facebook, LinkedIn). C\'est votre lien unique qui capte tous vos prospects.'
+                },
+              ]
+              const done = steps.filter(s => s.done).length
+              const total = steps.length
+              const pct = Math.round((done / total) * 100)
+              
+
+              return (
+                <div style={{background:'#fff',border:'1px solid #EBEBEB',borderRadius:12,marginBottom:20,overflow:'hidden'}}>
+                  <div
+                    style={{padding:'14px 20px',display:'flex',alignItems:'center',gap:12,cursor:'pointer',userSelect:'none'}}
+                    onClick={() => setChecklistOpen(!checklistOpen)}
+                  >
+                    <div style={{flex:1}}>
+                      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+                        <span style={{fontSize:13,fontWeight:600,color:'#1C1C1E'}}>
+                          {pct === 100 ? '🎉 Page complète !' : `Configuration de votre page — ${pct}%`}
+                        </span>
+                        <span style={{fontSize:11,color:'#8E8E93'}}>{done}/{total} étapes</span>
+                      </div>
+                      <div style={{height:6,background:'#F0F0F0',borderRadius:3,overflow:'hidden'}}>
+                        <div style={{height:'100%',width:`${pct}%`,background: pct === 100 ? '#34C759' : '#1C1C1E',borderRadius:3,transition:'width 0.3s'}}></div>
+                      </div>
+                    </div>
+                    <span style={{fontSize:12,color:'#8E8E93',flexShrink:0}}>{open ? '▲ Réduire' : '▼ Voir les étapes'}</span>
+                  </div>
+
+                  {checklistOpen && (
+                    <div style={{borderTop:'1px solid #F5F5F5',padding:'8px 0'}}>
+                      {steps.map(step => (
+                        <div key={step.id} style={{display:'flex',alignItems:'flex-start',gap:12,padding:'10px 20px',borderBottom:'1px solid #F9F9F9'}}>
+                          <div style={{width:22,height:22,borderRadius:'50%',background: step.done ? '#1C1C1E' : '#F0F0F0',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+                            <span style={{fontSize:10,color: step.done ? '#fff' : '#C7C7CC',fontWeight:700}}>{step.done ? '✓' : ''}</span>
+                          </div>
+                          <div style={{flex:1}}>
+                            <div style={{fontSize:13,fontWeight:600,color: step.done ? '#8E8E93' : '#1C1C1E',marginBottom:3,textDecoration: step.done ? 'line-through' : 'none'}}>
+                              {step.titre}
+                            </div>
+                            <div style={{fontSize:12,color:'#8E8E93',lineHeight:1.6}}>{step.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
 
             {/* ── STATS ── */}
             {tab === 'biens' && (
