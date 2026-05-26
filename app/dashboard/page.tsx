@@ -917,7 +917,7 @@ const loadAvis = async (id: string) => {
                       <table className="leads-table">
                         <thead>
                           <tr>
-                            <th>Statut</th>
+                            <th>Traité</th>
                         <th>Prospect</th>
                         <th>Profil</th>
                         <th>Type</th>
