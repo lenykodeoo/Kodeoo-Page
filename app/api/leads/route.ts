@@ -111,4 +111,19 @@ export async function GET(req: NextRequest) {
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
+  export async function PATCH(req: NextRequest) {
+  try {
+    const { lead_id, is_read } = await req.json()
+    if (!lead_id) return NextResponse.json({ error: 'lead_id requis' }, { status: 400 })
+
+    const { error } = await supabaseAdmin
+      .from('leads')
+      .update({ is_read })
+      .eq('id', lead_id)
+
+    if (error) throw error
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 }

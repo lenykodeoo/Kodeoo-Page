@@ -917,18 +917,34 @@ const loadAvis = async (id: string) => {
                       <table className="leads-table">
                         <thead>
                           <tr>
-                            <th>Prospect</th>
-                            <th>Profil</th>
-                            <th>Type</th>
-                            <th>Message</th>
-                            <th>Date</th>
+                            <th>Statut</th>
+                        <th>Prospect</th>
+                        <th>Profil</th>
+                        <th>Type</th>
+                        <th>Message</th>
+                        <th>Date</th>
                           </tr>
                         </thead>
                         <tbody>
                           {leads.map(lead => {
                             const colors = (typeColor[lead.type] || '#F5F5F0:#666').split(':')
                             return (
-                              <tr key={lead.id}>
+                              <tr key={lead.id} style={{opacity: lead.is_read ? 0.5 : 1}}>
+                                <td style={{width:40}}>
+                                  <input
+                                    type="checkbox"
+                                    checked={lead.is_read || false}
+                                    onChange={async (e) => {
+                                      await fetch('/api/leads', {
+                                        method: 'PATCH',
+                                        headers: {'Content-Type':'application/json'},
+                                        body: JSON.stringify({lead_id: lead.id, is_read: e.target.checked})
+                                      })
+                                      loadLeads(agentId!)
+                                    }}
+                                    style={{width:16,height:16,cursor:'pointer',accentColor:'#1C1C1E'}}
+                                  />
+                                </td>
                                 <td>
                                   <div className="lead-name">{lead.nom}</div>
                                   <div className="lead-contact">{lead.email}</div>
