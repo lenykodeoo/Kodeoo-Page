@@ -564,7 +564,7 @@ const loadAvis = async (id: string) => {
                         <div style={{height:'100%',width:`${pct}%`,background: pct === 100 ? '#34C759' : '#1C1C1E',borderRadius:3,transition:'width 0.3s'}}></div>
                       </div>
                     </div>
-                    <span style={{fontSize:12,color:'#8E8E93',flexShrink:0}}>{open ? '▲ Réduire' : '▼ Voir les étapes'}</span>
+                    <span style={{fontSize:12,color:'#8E8E93',flexShrink:0}}>{checklistOpen ? '▲ Réduire' : '▼ Voir les étapes'}</span>
                   </div>
 
                   {checklistOpen && (
