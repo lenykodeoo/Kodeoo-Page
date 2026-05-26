@@ -535,11 +535,9 @@ export default async function AgentPage(props: any) {
       var desc = bien.description || '';
       function decodeHtmlModal(str) {
         if (!str) return '';
-        return str
-          .replace(/Ã¨/g, 'è').replace(/Ã©/g, 'é').replace(/Ã /g, 'à')
-          .replace(/Ã§/g, 'ç').replace(/Ã´/g, 'ô').replace(/Ã»/g, 'û')
-          .replace(/Ã®/g, 'î').replace(/â€™/g, "'").replace(/â€"/g, '–')
-          .replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&nbsp;/g, ' ');
+        var txt = document.createElement('textarea');
+        txt.innerHTML = str;
+        return txt.value;
       }
       content.innerHTML = imgHtml
         + '<div class="bien-modal-title">' + decodeHtmlModal(bien.titre || '') + '</div>'
