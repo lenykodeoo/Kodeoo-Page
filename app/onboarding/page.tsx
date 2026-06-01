@@ -482,9 +482,14 @@ export default function OnboardingPage() {
               go.kodeoo.fr/{slug} 📋
             </div>
             <br />
-            <a className="btn-voir" href={`https://go.kodeoo.fr/${slug}`} target="_blank">
-              Voir mon Kodeoo Link →
+            <a className="btn-voir" href={`https://go.kodeoo.fr/dashboard`}>
+              Configurer mon dashboard →
             </a>
+            <div style={{marginTop:12,textAlign:'center'}}>
+              <a href={`https://go.kodeoo.fr/${slug}`} target="_blank" style={{fontSize:13,color:'#8E8E93',textDecoration:'underline'}}>
+                Voir ma page →
+              </a>
+            </div>
             <div className="next-steps">
               <div className="ns-label">Prochaines étapes</div>
               <div className="ns-item"><span className="ns-num">1</span>Mettez le lien dans la bio de tous vos réseaux</div>

@@ -144,8 +144,7 @@ export default async function AgentPage(props: any) {
         .bien-slides{display:flex;height:100%;transition:transform 0.3s ease;width:100%}
         .bien-slide{min-width:100%;width:100%;height:100%;display:block;flex-shrink:0;overflow:hidden}
         .bien-slide img{width:100%;height:100%;object-fit:cover;display:block}
-        .bien-price-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.55));color:#fff;font-size:16px;font-weight:700;letter-spacing:-0.3px}
-        .bien-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;background:rgba(255,255,255,0.88);border:none;border-radius:50%;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.bien-price-overlay{position:absolute;bottom:0;left:0;right:0;padding:28px 10px 10px;background:linear-gradient(transparent,rgba(0,0,0,0.55));color:#fff;font-size:14px;font-weight:700;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}        .bien-nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:28px;background:rgba(255,255,255,0.88);border:none;border-radius:50%;cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
         .bien-nav-prev{left:8px}
         .bien-nav-next{right:8px}
         .bien-count-badge{position:absolute;top:8px;left:8px;background:rgba(0,0,0,0.45);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
