@@ -840,18 +840,6 @@ const loadAvis = async (id: string) => {
               <>
                 <div className="card two-col">
                   <div>
-                    <div className="card-title">🚀 Import en masse</div>
-                    <div className="card-sub">URL de votre page liste de biens</div>
-                    <div className="input-row" style={{marginTop:12}}>
-                      <input className="inp" placeholder="https://www.iadfrance.fr/conseiller-immobilier/votre.nom" value={listUrl} onChange={e => setListUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && importAll()} />
-                      <button className="btn-black" onClick={importAll} disabled={loadingAll || !listUrl}>
-                        {loadingAll ? <span className="spinner"></span> : null}
-                        {loadingAll ? 'Import...' : 'Importer tout'}
-                      </button>
-                    </div>
-                    <div className="hint">✓ IAD France, Safti, sites d'agences</div>
-                  </div>
-                  <div>
                     <div className="card-title">🔗 Import unitaire</div>
                     <div className="card-sub">URL d'une annonce individuelle</div>
                     <div className="input-row" style={{marginTop:12}}>
@@ -861,7 +849,9 @@ const loadAvis = async (id: string) => {
                         {loading ? 'Scan...' : 'Importer'}
                       </button>
                     </div>
+                    <div className="hint">✓ IAD France, Safti, Coldwell Banker, sites d'agences</div>
                   </div>
+                  
                 </div>
 
                 {preview && (
