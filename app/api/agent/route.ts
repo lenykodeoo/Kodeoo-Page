@@ -114,3 +114,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const slug = searchParams.get('slug')
+    const agent_id = searchParams.get('agent_id')
+
+    if (!slug && !agent_id) {
+      return NextResponse.json({ error: 'slug ou agent_id requis' }, { status: 400 })
+    }
+
+    let query = supabaseAdmin.from('agents').select('id, slug, is_active')
+    if (slug) query = query.eq('slug', slug)
+    if (agent_id) query = query.eq('id', agent_id)
+
+    const { data: agent, error } = await query.single()
+
+    if (error || !agent) {
+      return NextResponse.json({ success: false, active: false })
+    }
+
+    return NextResponse.json({ success: true, active: agent.is_active, agent })
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
