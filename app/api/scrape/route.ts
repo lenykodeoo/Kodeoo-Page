@@ -94,8 +94,8 @@ export async function POST(req: NextRequest) {
     }
 
     // Surface — prendre depuis le titre en priorité
-    const surfaceTitreMatch = titre.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
-    const surfaceFullMatch = fullText.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
+    const surfaceTitreMatch = titre.match(/(\d+(?:[.,]\d+)?)\s*m[²2]/i)
+    const surfaceFullMatch = fullText.match(/(\d+(?:[.,]\d+)?)\s*m[²2]/i)
     const surfaceRaw = surfaceTitreMatch || surfaceFullMatch
     const surface = surfaceRaw ? parseFloat(surfaceRaw[1].replace(',', '.')) : null
 
