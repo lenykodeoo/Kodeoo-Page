@@ -843,13 +843,12 @@ const loadAvis = async (id: string) => {
                     <div className="card-title">🔗 Import unitaire</div>
                     <div className="card-sub">URL d'une annonce individuelle</div>
                     <div className="input-row" style={{marginTop:12}}>
-                      <input className="inp" placeholder="https://www.iadfrance.fr/annonce/..." value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && scrape()} />
+                      <input className="inp" placeholder="https://votresite.fr/annonce/..." value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && scrape()} />
                       <button className="btn-black" onClick={scrape} disabled={loading || !url}>
                         {loading ? <span className="spinner"></span> : null}
                         {loading ? 'Scan...' : 'Importer'}
                       </button>
                     </div>
-                    <div className="hint">✓ IAD France, Safti, Coldwell Banker, sites d'agences</div>
                   </div>
                   
                 </div>
