@@ -86,16 +86,18 @@ export async function POST(req: NextRequest) {
     }
     // Fallback : chercher dans le titre directement
     if (!prix) {
-      const prixTitre = titre.match(/(\d[\d\s]{2,8})\s*[€$]/)
+      const prixTitre = titre.match(/(\d[\d\s]{2,12})\s*[€$]/)
       if (prixTitre) {
         const n = parseInt(prixTitre[1].replace(/\s/g, ''))
         if (n >= 30000 && n <= 50000000) prix = n
       }
     }
 
-    // Surface
-    const surfaceMatch = fullText.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
-    const surface = surfaceMatch ? parseFloat(surfaceMatch[1].replace(',', '.')) : null
+    // Surface — prendre depuis le titre en priorité
+    const surfaceTitreMatch = titre.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
+    const surfaceFullMatch = fullText.match(/(\d+(?:[.,]\d+)?)\s*m²/i)
+    const surfaceRaw = surfaceTitreMatch || surfaceFullMatch
+    const surface = surfaceRaw ? parseFloat(surfaceRaw[1].replace(',', '.')) : null
 
     // Pièces
     const piecesMatch = fullText.match(/(\d+)\s*pi[eè]ces?/i) || fullText.match(/T(\d)\b/) || fullText.match(/F(\d)\b/)
@@ -112,13 +114,12 @@ export async function POST(req: NextRequest) {
     // Ville — extraire depuis le titre en priorité, puis l'URL
     let ville = ''
 
-    // 1. Depuis le titre : "À vendre Maison Golfe-Juan 375 m²" → "Golfe-Juan"
-    // Pattern : mot(s) capitalisés après "vente|vendre|louer|location|maison|appartement|villa|studio"
-    const villeTitreMatch = titre.match(/(?:vente|vendre|louer|location)\s+(?:maison|appartement|villa|studio|loft|terrain)?\s*([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ\s-]{2,25?})\s+\d/i)
+    // 1. Depuis le titre — pattern "Ville - type" ou "type Ville"
+    const villeTitreMatch = titre.match(/^([A-ZÀ-Ÿ][a-zà-ÿ\s-]{2,25})\s*[-–]\s*(?:villa|maison|appartement|studio|loft)/i)
+      || titre.match(/(?:vente|vendre|louer|location)\s+(?:maison|appartement|villa|studio|loft|terrain)?\s*([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ\s-]{2,25?})\s+\d/i)
       || titre.match(/(?:maison|appartement|villa|studio|loft)\s+([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ-]{2,25})\s+\d/i)
     if (villeTitreMatch) {
       ville = villeTitreMatch[1].trim()
-      // Supprimer le type de bien s'il est inclus dans la ville
       ville = ville.replace(/^(maison|appartement|villa|studio|loft)\s+/i, '').trim()
     }
 
