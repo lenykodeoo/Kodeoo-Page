@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     // Prix — chercher le plus gros nombre avec € dans le titre ou contenu
     let prix: number | null = null
-    const prixMatches = [...fullText.matchAll(/(\d[\d\s]{2,8})\s*€/g)]
+    const prixMatches = [...fullText.matchAll(/(\d[\d\s]{2,12})\s*€/g)]
     for (const m of prixMatches) {
       const n = parseInt(m[1].replace(/\s/g, ''))
       if (n >= 30000 && n <= 50000000) {
