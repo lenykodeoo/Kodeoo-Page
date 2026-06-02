@@ -1,4 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
+
+async function uploadImageToSupabase(imageUrl: string, agentId: string, bienIndex: string, photoIndex: number): Promise<string | null> {
+  try {
+    const response = await fetch(imageUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: AbortSignal.timeout(10000),
+    })
+    if (!response.ok) return null
+    
+    const buffer = Buffer.from(await response.arrayBuffer())
+    const ext = imageUrl.split('?')[0].split('.').pop()?.toLowerCase() || 'jpg'
+    const validExts = ['jpg', 'jpeg', 'png', 'webp']
+    const finalExt = validExts.includes(ext) ? ext : 'jpg'
+    const fileName = `${agentId}/${bienIndex}/${photoIndex}.${finalExt}`
+
+    const { error } = await supabaseAdmin.storage
+      .from('biens')
+      .upload(fileName, buffer, {
+        contentType: `image/${finalExt === 'jpg' ? 'jpeg' : finalExt}`,
+        upsert: true,
+      })
+
+    if (error) return null
+
+    const { data } = supabaseAdmin.storage.from('biens').getPublicUrl(fileName)
+    return data.publicUrl
+  } catch {
+    return null
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -172,7 +203,16 @@ export async function POST(req: NextRequest) {
       else photos.push(src)
     }
 
-    const uniquePhotos = [...new Set(photos)].slice(0, 20)
+    const uniquePhotos = [...new Set(photos)].slice(0, 10)
+    
+    // Upload photos dans Supabase Storage
+    const bienIndex = Date.now().toString()
+    const uploadedPhotos: string[] = []
+    for (let i = 0; i < uniquePhotos.length; i++) {
+      const uploaded = await uploadImageToSupabase(uniquePhotos[i], 'temp', bienIndex, i)
+      if (uploaded) uploadedPhotos.push(uploaded)
+      else uploadedPhotos.push(uniquePhotos[i]) // fallback URL originale
+    }
 
     // Type de bien
     const typePatterns = [
@@ -200,7 +240,7 @@ export async function POST(req: NextRequest) {
         chambres,
         ville,
         description: ogDesc || null,
-        photos: uniquePhotos,
+        photos: uploadedPhotos,
         dpe,
         source_url: url
       }
