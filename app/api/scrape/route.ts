@@ -203,16 +203,7 @@ export async function POST(req: NextRequest) {
       else photos.push(src)
     }
 
-    const uniquePhotos = [...new Set(photos)].slice(0, 10)
-    
-    // Upload photos dans Supabase Storage
-    const bienIndex = Date.now().toString()
-    const uploadedPhotos: string[] = []
-    for (let i = 0; i < uniquePhotos.length; i++) {
-      const uploaded = await uploadImageToSupabase(uniquePhotos[i], 'temp', bienIndex, i)
-      if (uploaded) uploadedPhotos.push(uploaded)
-      else uploadedPhotos.push(uniquePhotos[i]) // fallback URL originale
-    }
+    const uploadedPhotos = [...new Set(photos)].slice(0, 20)
 
     // Type de bien
     const typePatterns = [
