@@ -66,28 +66,6 @@ export async function DELETE(req: NextRequest) {
   try {
     const { bien_id, agent_id } = await req.json()
 
-    // Récupérer les photos avant suppression
-    const { data: bien } = await supabaseAdmin
-      .from('biens')
-      .select('photos')
-      .eq('id', bien_id)
-      .single()
-
-    // Supprimer les photos du Storage Supabase
-    if (bien?.photos && bien.photos.length > 0) {
-      const filePaths = bien.photos
-        .filter((url: string) => url.includes('supabase.co/storage'))
-        .map((url: string) => {
-          const parts = url.split('/biens/')
-          return parts[1] ? parts[1].split('?')[0] : null
-        })
-        .filter(Boolean)
-
-      if (filePaths.length > 0) {
-        await supabaseAdmin.storage.from('biens').remove(filePaths)
-      }
-    }
-
     const { error } = await supabaseAdmin
       .from('biens')
       .delete()
