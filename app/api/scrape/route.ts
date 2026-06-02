@@ -185,6 +185,7 @@ export async function POST(req: NextRequest) {
       if (src.startsWith('/')) src = baseUrl + src
       if (!src.startsWith('http')) continue
       if (/logo|icon|sprite|blank|placeholder|avatar|thumb/i.test(src)) continue
+      if (src.includes('facebook.com') || src.includes('fb.com') || src.includes('google-analytics') || src.includes('analytics') || src.includes('pixel') || src.includes('tracker')) continue
       if (src.endsWith('.svg') || src.endsWith('.gif')) continue
       if (photos.includes(src)) continue
       // Privilégier les images de grande taille (show, large, big, full, 1920)
@@ -199,6 +200,7 @@ export async function POST(req: NextRequest) {
       if (src.startsWith('/')) src = baseUrl + src
       if (!src.startsWith('http')) continue
       if (photos.includes(src)) continue
+      if (src.includes('facebook.com') || src.includes('fb.com')) continue
       if (/show|large|1920/i.test(src)) photos.unshift(src)
       else photos.push(src)
     }
