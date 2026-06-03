@@ -401,72 +401,32 @@ export default function OnboardingPage() {
             <div className="title">Vos biens</div>
             <div className="sub">Importez vos annonces automatiquement. Vous pouvez passer cette étape.</div>
             <div className="card">
-              <div className="import-tabs">
-                <button className={`import-tab ${importMode === 'liste' ? 'on' : ''}`} onClick={() => setImportMode('liste')}>
-                  Page liste de biens
-                </button>
-                <button className={`import-tab ${importMode === 'unitaire' ? 'on' : ''}`} onClick={() => setImportMode('unitaire')}>
-                  URL par bien
-                </button>
+              <div style={{fontSize:13,color:'#6B6B80',marginBottom:12,lineHeight:1.6}}>
+                Ajoutez les URLs de vos annonces une par une.
               </div>
-
-              {importMode === 'liste' ? (
-                <>
-                  <div style={{fontSize:13,color:'#6B6B80',marginBottom:12,lineHeight:1.6}}>
-                    Collez l'URL de votre page avec tous vos biens — on importe tout automatiquement.
-                  </div>
+              {importUrls.map((url, i) => (
+                <div key={i} className="url-add">
                   <input
                     className="inp-full"
-                    placeholder="https://www.iadfrance.fr/conseiller-immobilier/votre.nom ou votre site agence"
-                    value={importUrl}
-                    onChange={e => setImportUrl(e.target.value)}
-                    style={{marginBottom:12}}
+                    placeholder="https://votresite.fr/annonce/..."
+                    value={url}
+                    onChange={e => { const arr = [...importUrls]; arr[i] = e.target.value; setImportUrls(arr) }}
                   />
-                  <div style={{fontSize:11,color:'#C7C7CC',marginBottom:12}}>✓ Compatible IAD France, Safti, sites d'agences</div>
-                  {!importDone ? (
-                    <button className="btn-next" style={{width:'100%'}} onClick={publish} disabled={importLoading || !importUrl}>
-                      {importLoading ? '⏳ Import en cours...' : '⚡ Publier avec mes biens'}
-                    </button>
-                  ) : (
-                    <div className="import-success">
-                      <div style={{fontSize:16,fontWeight:700,color:'#166534',marginBottom:4}}>✅ {importCount} biens importés !</div>
-                      <div style={{fontSize:13,color:'#166534'}}>Votre page est prête.</div>
-                    </div>
+                  {i === importUrls.length - 1 && (
+                    <button className="btn-add-url" onClick={() => setImportUrls([...importUrls, ''])}>+ Ajouter</button>
                   )}
-                </>
-              ) : (
-                <>
-                  <div style={{fontSize:13,color:'#6B6B80',marginBottom:12,lineHeight:1.6}}>
-                    Ajoutez les URLs de vos annonces une par une.
-                  </div>
-                  {importUrls.map((url, i) => (
-                    <div key={i} className="url-add">
-                      <input
-                        className="inp-full"
-                        placeholder={`https://www.iadfrance.fr/annonce/...`}
-                        value={url}
-                        onChange={e => { const arr = [...importUrls]; arr[i] = e.target.value; setImportUrls(arr) }}
-                      />
-                      {i === importUrls.length - 1 && (
-                        <button className="btn-add-url" onClick={() => setImportUrls([...importUrls, ''])}>+ Ajouter</button>
-                      )}
-                    </div>
-                  ))}
-                </>
-              )}
+                </div>
+              ))}
             </div>
-
             <div className="nav">
               <button className="btn-back" onClick={() => setStep(3)}>← Retour</button>
               <div style={{display:'flex',gap:8}}>
                 <button className="btn-skip" onClick={publish} disabled={loading}>
                   {loading ? 'Publication...' : 'Passer & Publier'}
                 </button>
-                {importMode === 'unitaire' && (
-                  <button className="btn-next" onClick={publish} disabled={loading}>
-                    {loading ? '⏳...' : '🚀 Publier'}
-                  </button>
-                )}
+                <button className="btn-next" onClick={publish} disabled={loading}>
+                  {loading ? '⏳...' : '🚀 Publier'}
+                </button>
               </div>
             </div>
           </>
