@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 function generateSlug(prenom: string, nom: string): string {
-  return (prenom + '-' + nom)
+  const base = prenom ? `${prenom}-${nom}` : nom
+  return base
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const { kodeoo_member_id, prenom, nom, email, telephone, reseau, ville, bio, instagram, tiktok, facebook, linkedin } = body
 
-    if (!prenom || !nom || !email) {
+    if ((!prenom && !nom) || !email) {
       return NextResponse.json({ error: 'Champs requis manquants' }, { status: 400 })
     }
 

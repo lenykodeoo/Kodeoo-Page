@@ -211,7 +211,7 @@ const loadAvis = async (id: string) => {
     if (!url.trim() || !agentId) return
     setLoading(true); setPreview(null)
     try {
-      const res = await fetch('/api/scrape', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url }) })
+      const res = await fetch('/api/scrape', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url, agent_id: agentId }) })
       const data = await res.json()
       if (data.success) setPreview({ ...data.bien, prix_saisi: data.bien.prix || '' })
       else alert('Erreur : ' + data.error)
