@@ -197,6 +197,10 @@ const loadAvis = async (id: string) => {
 
   const uploadPdf = async (lm_id: string, file: File) => {
     if (!agentId) return
+    if (file.size > 4 * 1024 * 1024) {
+      alert('❌ Fichier trop volumineux — maximum 4MB. Compressez votre PDF sur smallpdf.com avant de l\'uploader.')
+      return
+    }
     setUploadingId(lm_id)
     const fd = new FormData()
     fd.append('agent_id', agentId)
