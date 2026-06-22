@@ -952,14 +952,25 @@ const loadAvis = async (id: string) => {
                           {isActive ? (hasPdf ? 'Affiché sur votre page' : 'En attente de votre PDF') : 'Désactivé'}
                         </div>
                         {isActive && (
-                          hasPdf ? (
-                            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
-                              <span className="pdf-badge">✓ PDF disponible</span>
+                         hasPdf ? (
+                          <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8,flexWrap:'wrap'}}>
+                            <span className="pdf-badge">✓ PDF disponible</span>
+                            <div style={{display:'flex',gap:10,alignItems:'center'}}>
+                              <a href={r?.pdf_url} target="_blank" style={{fontSize:12,color:'#2563EB',textDecoration:'underline',cursor:'pointer'}}>
+                                Voir le PDF
+                              </a>
                               <label style={{cursor:'pointer',fontSize:12,color:'#8E8E93',textDecoration:'underline'}}>
                                 Remplacer
                                 <input type="file" accept=".pdf" style={{display:'none'}} onChange={e => { const f = e.target.files?.[0]; if(f) uploadPdf(lm.id, f) }} />
                               </label>
+                              <span
+                                onClick={() => toggleRessource(lm.id, false)}
+                                style={{fontSize:12,color:'#EF4444',textDecoration:'underline',cursor:'pointer'}}
+                              >
+                                Supprimer
+                              </span>
                             </div>
+                          </div>
                           ) : (
                             <div className="upload-zone">
                               <label className="upload-label">
