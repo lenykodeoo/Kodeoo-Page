@@ -89,13 +89,26 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const { agent_id, lead_magnet_id } = await req.json()
+    const { agent_id, lead_magnet_id, delete_pdf_only } = await req.json()
 
-    await supabaseAdmin
-      .from('ressources')
-      .update({ actif: false })
-      .eq('agent_id', agent_id)
-      .eq('lead_magnet_id', lead_magnet_id)
+    if (delete_pdf_only) {
+      // Supprimer uniquement le PDF mais garder la ressource active
+      await supabaseAdmin.storage
+        .from('ressources')
+        .remove([`${agent_id}/${lead_magnet_id}.pdf`])
+
+      await supabaseAdmin
+        .from('ressources')
+        .update({ pdf_url: null, actif: false })
+        .eq('agent_id', agent_id)
+        .eq('lead_magnet_id', lead_magnet_id)
+    } else {
+      await supabaseAdmin
+        .from('ressources')
+        .update({ actif: false })
+        .eq('agent_id', agent_id)
+        .eq('lead_magnet_id', lead_magnet_id)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

@@ -207,6 +207,16 @@ const loadAvis = async (id: string) => {
     setUploadingId(null)
   }
 
+  const deletePdf = async (lm_id: string) => {
+    if (!agentId) return
+    await fetch('/api/ressources', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ agent_id: agentId, lead_magnet_id: lm_id, delete_pdf_only: true })
+    })
+    loadRessources(agentId)
+  }
+
   const scrape = async () => {
     if (!url.trim() || !agentId) return
     setLoading(true); setPreview(null)
