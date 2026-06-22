@@ -974,7 +974,7 @@ const loadAvis = async (id: string) => {
                                 <input type="file" accept=".pdf" style={{display:'none'}} onChange={e => { const f = e.target.files?.[0]; if(f) uploadPdf(lm.id, f) }} />
                               </label>
                               <span
-                                onClick={() => toggleRessource(lm.id, false)}
+                                onClick={() => deletePdf(lm.id)}
                                 style={{fontSize:12,color:'#EF4444',textDecoration:'underline',cursor:'pointer'}}
                               >
                                 Supprimer
