@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
         .from('ressources')
         .getPublicUrl(fileName)
 
-      pdf_url = urlData.publicUrl
+      pdf_url = urlData.publicUrl + '?v=' + Date.now()
     }
 
     // Upsert — crée ou met à jour
