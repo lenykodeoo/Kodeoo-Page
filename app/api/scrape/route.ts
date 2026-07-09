@@ -1,35 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
-
-async function uploadImageToSupabase(imageUrl: string, agentId: string, bienIndex: string, photoIndex: number): Promise<string | null> {
-  try {
-    const response = await fetch(imageUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0' },
-      signal: AbortSignal.timeout(10000),
-    })
-    if (!response.ok) return null
-    
-    const buffer = Buffer.from(await response.arrayBuffer())
-    const ext = imageUrl.split('?')[0].split('.').pop()?.toLowerCase() || 'jpg'
-    const validExts = ['jpg', 'jpeg', 'png', 'webp']
-    const finalExt = validExts.includes(ext) ? ext : 'jpg'
-    const fileName = `${agentId}/${bienIndex}/${photoIndex}.${finalExt}`
-
-    const { error } = await supabaseAdmin.storage
-      .from('biens')
-      .upload(fileName, buffer, {
-        contentType: `image/${finalExt === 'jpg' ? 'jpeg' : finalExt}`,
-        upsert: true,
-      })
-
-    if (error) return null
-
-    const { data } = supabaseAdmin.storage.from('biens').getPublicUrl(fileName)
-    return data.publicUrl
-  } catch {
-    return null
-  }
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -82,14 +51,14 @@ export async function POST(req: NextRequest) {
       return m ? m[1].trim() : ''
     }
 
-    // Titre — priorité : <title> > og:title
+    const decodeUrl = (u: string) => u.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
     const rawTitle = titleMatch ? titleMatch[1].trim() : ''
     const ogTitle = getMeta('og:title')
     const ogDesc = getMeta('og:description') || getMetaName('description')
     const ogImage = getMeta('og:image')
 
-// Nettoyer le titre
     const fixEncoding = (str: string): string => {
       return str
         .replace(/Ã©/g, 'é').replace(/Ã¨/g, 'è').replace(/Ã /g, 'à')
@@ -102,20 +71,15 @@ export async function POST(req: NextRequest) {
     }
 
     let titre = fixEncoding(rawTitle || ogTitle)
-    titre = titre.replace(/\s*[-|–]\s*(SeLoger|Leboncoin|PAP|Logic|BienIci|Figaro Immo|LeFigaro).*/i, '').trim()
+    titre = titre.replace(/\s*[-|–]\s*(SeLoger|Leboncoin|PAP|Logic|BienIci|Figaro Immo|LeFigaro|Orpi).*/i, '').trim()
     const fullText = titre + ' ' + ogDesc + ' ' + html.slice(0, 50000)
 
-    // Prix — chercher le plus gros nombre avec € dans le titre ou contenu
     let prix: number | null = null
     const prixMatches = [...fullText.matchAll(/(\d[\d\s]{2,12})\s*€/g)]
     for (const m of prixMatches) {
       const n = parseInt(m[1].replace(/\s/g, ''))
-      if (n >= 30000 && n <= 50000000) {
-        prix = n
-        break
-      }
+      if (n >= 30000 && n <= 50000000) { prix = n; break }
     }
-    // Fallback : chercher dans le titre directement
     if (!prix) {
       const prixTitre = titre.match(/(\d[\d\s]{2,12})\s*[€$]/)
       if (prixTitre) {
@@ -124,28 +88,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Surface — prendre depuis le titre en priorité
     const surfaceTitreMatch = titre.match(/(\d+(?:[.,]\d+)?)\s*m[²2]/i)
     const surfaceFullMatch = fullText.match(/(\d+(?:[.,]\d+)?)\s*m[²2]/i)
     const surfaceRaw = surfaceTitreMatch || surfaceFullMatch
     const surface = surfaceRaw ? parseFloat(surfaceRaw[1].replace(',', '.')) : null
 
-    // Pièces
     const piecesMatch = fullText.match(/(\d+)\s*pi[eè]ces?/i) || fullText.match(/T(\d)\b/) || fullText.match(/F(\d)\b/)
     const pieces = piecesMatch ? parseInt(piecesMatch[1]) : null
 
-    // Chambres
     const chambresMatch = fullText.match(/(\d+)\s*chambre/i) || fullText.match(/chambre[^:]*:\s*(\d+)/i)
     const chambres = chambresMatch ? parseInt(chambresMatch[1]) : null
 
-    // DPE
     const dpeMatch = fullText.match(/DPE\s*:?\s*([A-G])\b/i)
     const dpe = dpeMatch ? dpeMatch[1].toUpperCase() : null
 
-    // Ville — extraire depuis le titre en priorité, puis l'URL
     let ville = ''
-
-    // 1. Depuis le titre — pattern "Ville - type" ou "type Ville"
     const villeTitreMatch = titre.match(/^([A-ZÀ-Ÿ][a-zà-ÿ\s-]{2,25})\s*[-–]\s*(?:villa|maison|appartement|studio|loft)/i)
       || titre.match(/(?:vente|vendre|louer|location)\s+(?:maison|appartement|villa|studio|loft|terrain)?\s*([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ\s-]{2,25?})\s+\d/i)
       || titre.match(/(?:maison|appartement|villa|studio|loft)\s+([A-ZÀ-Ÿa-zà-ÿ][A-ZÀ-Ÿa-zà-ÿ-]{2,25})\s+\d/i)
@@ -153,8 +110,6 @@ export async function POST(req: NextRequest) {
       ville = villeTitreMatch[1].trim()
       ville = ville.replace(/^(maison|appartement|villa|studio|loft)\s+/i, '').trim()
     }
-
-    // 2. Depuis l'URL : /a-vendre-maison-golfe-juan-375-m → "Golfe-Juan"
     if (!ville) {
       const urlPath = new URL(url).pathname
       const urlVilleMatch = urlPath.match(/(?:vente|vendre|louer|location|maison|appartement|villa|studio|achat)-([a-z-]+?)-(?:\d|m-|\d{2,4}-)/)
@@ -162,41 +117,33 @@ export async function POST(req: NextRequest) {
         ville = urlVilleMatch[1].split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('-')
       }
     }
-
-    // 3. Depuis le breadcrumb HTML
     if (!ville) {
       const breadcrumbMatch = html.match(/(?:breadcrumb|fil-ariane)[^>]*>[\s\S]*?<[^>]+>([^<]{3,30})<\/[^>]+>[\s\S]*?<[^>]+>([^<]{3,30})<\/[^>]+>/i)
       if (breadcrumbMatch) {
         const candidate = breadcrumbMatch[2].trim()
-        if (candidate && !/accueil|home|acheter|vendre|louer/i.test(candidate)) {
-          ville = candidate
-        }
+        if (candidate && !/accueil|home|acheter|vendre|louer/i.test(candidate)) ville = candidate
       }
     }
 
-    // Photos — récupérer toutes les images de la page
     const photos: string[] = []
-    if (ogImage) photos.push(ogImage)
+    if (ogImage) photos.push(decodeUrl(ogImage))
 
-    // Images depuis les balises <img> avec URLs absolues ou relatives
     const imgMatches = [...html.matchAll(/<img[^>]+src="([^"]+)"/gi)]
     for (const m of imgMatches) {
-      let src = m[1]
+      let src = decodeUrl(m[1])
       if (src.startsWith('/')) src = baseUrl + src
       if (!src.startsWith('http')) continue
       if (/logo|icon|sprite|blank|placeholder|avatar|thumb/i.test(src)) continue
-      if (src.includes('facebook.com') || src.includes('fb.com') || src.includes('google-analytics') || src.includes('analytics') || src.includes('pixel') || src.includes('tracker')) continue
+      if (src.includes('facebook.com') || src.includes('fb.com') || src.includes('analytics') || src.includes('pixel') || src.includes('tracker')) continue
       if (src.endsWith('.svg') || src.endsWith('.gif')) continue
       if (photos.includes(src)) continue
-      // Privilégier les images de grande taille (show, large, big, full, 1920)
       if (/show|large|big|full|1920|800|1200/i.test(src)) photos.unshift(src)
       else photos.push(src)
     }
 
-    // Liens href vers images (certains sites mettent les grandes images dans des liens)
     const aImgMatches = [...html.matchAll(/href="([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi)]
     for (const m of aImgMatches) {
-      let src = m[1]
+      let src = decodeUrl(m[1])
       if (src.startsWith('/')) src = baseUrl + src
       if (!src.startsWith('http')) continue
       if (photos.includes(src)) continue
@@ -205,9 +152,8 @@ export async function POST(req: NextRequest) {
       else photos.push(src)
     }
 
-    const uploadedPhotos = [...new Set(photos)].slice(0, 20)
+    const uniquePhotos = [...new Set(photos)].slice(0, 20)
 
-    // Type de bien
     const typePatterns = [
       { p: /appartement/i, l: 'Appartement' },
       { p: /maison/i, l: 'Maison' },
@@ -233,7 +179,7 @@ export async function POST(req: NextRequest) {
         chambres,
         ville,
         description: ogDesc || null,
-        photos: uploadedPhotos,
+        photos: uniquePhotos,
         dpe,
         source_url: url
       }
