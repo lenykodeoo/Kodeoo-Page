@@ -606,7 +606,7 @@ export default async function AgentPage(props: any) {
       data.message = document.getElementById('cMsg') ? document.getElementById('cMsg').value : '';
     } else if (type === 'estimation') {
       data.nom = 'Prospect estimation';
-      var emailEl = document.getElementById('eEmail') || document.getElementById('estimEmail');
+      var emailEl = document.getElementById('estimEmail') || document.getElementById('eEmail');
       var telEl = document.getElementById('eTel') || document.getElementById('estimTel');
       var adrEl = document.getElementById('eAdresse') || document.getElementById('estimAdresse');
       var surEl = document.getElementById('eSurface') || document.getElementById('estimSurface');
