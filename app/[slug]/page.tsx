@@ -118,7 +118,8 @@ export default async function AgentPage(props: any) {
         .estim-sub{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:16px}
         .estim-input{width:100%;height:44px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none}
         .estim-input::placeholder{color:rgba(255,255,255,0.3)}
-        .estim-select{width:100%;height:44px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none;cursor:pointer}
+        .estim-select{width:100%;height:44px;background:#2C2C2E;border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:0 13px;font-size:14px;color:#fff;outline:none;margin-bottom:8px;font-family:inherit;-webkit-appearance:none;cursor:pointer}
+.estim-select option{background:#2C2C2E;color:#fff;}
         .estim-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
         .estim-btn{width:100%;height:50px;background:#1C1C1E;border:1.5px solid rgba(255,255,255,0.6);border-radius:8px;font-size:14px;font-weight:600;color:#fff;cursor:pointer;font-family:inherit;margin-top:4px}
         .avis-wrap{background:#fff;margin-bottom:8px;padding:20px 0}
